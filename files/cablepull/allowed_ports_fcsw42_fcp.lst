@@ -1,0 +1,23 @@
+# fcsw42_fcp
+3/1      #  from S83 11C(5A) to DS8K28
+4/1      #  from S83 11D(5B) to DS8K28
+3/25     #  from DS8K28 0313 to S83,T35,T83 
+4/25     #  from DS8K28 0333 to S83,T35,T83
+3/2      #  from M83 11C(5A) to DS8K28
+4/2      #  from M83 11D(5B) to DS8K28
+3/26     #  from DS8K28 0243 to M83 
+4/26     #  from DS8K28 0303 to M83
+3/3      #  from M35 11C(5A) to DS8K28
+4/3      #  from M35 11D(5B) to DS8K28
+3/27     #  from DS8K28 0203 to M35 
+4/27     #  from DS8K28 0233 to M35
+3/13     #  from S83 25C(69) to V7K06
+4/13     #  from S83 25D(6A) to V7K06
+3/14     #  from M83 268(69) to V7K06
+4/14     #  from M83 269(6A) to V7K06
+3/15     #  from M35 198(69) to V7K06
+4/15     #  from M35 199(6A) to V7K06
+3/39     #  from V7K06 1-2 to S83,M35,M83,T35,T83
+3/38     #  from V7K06 3-1 to S83,M35,M83,T35,T83
+4/39     #  from V7K06 2-2 to S83,M35,M83,T35,T83
+4/38     #  from V7K06 4-1 to S83,M35,M83,T35,T83

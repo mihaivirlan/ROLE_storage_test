@@ -1,0 +1,13 @@
+# fcsw32_ficon
+4/22     #  from M35 1E4(3A) to DS8K28
+7/22     #  from M35 1E5(3B) to DS8K28
+4/21     #  from M83 118(3A) to DS8K28
+7/21     #  from M83 119(3B) to DS8K28
+4/20     #  from S83 194(3A) to DS8K28
+7/20     #  from S83 195(3B) to DS8K28
+4/46     #  from DS8K28 0202 to M35, ISL 
+7/46     #  from DS8K28 0230 to M35, ISL
+4/45     #  from DS8K28 0240 to M83 
+7/45     #  from DS8K28 0330 to M83
+4/44     #  from DS8K28 0310 to S83 
+7/44     #  from DS8K28 0300 to S83

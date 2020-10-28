@@ -1,0 +1,112 @@
+#!/bin/sh
+# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_V7K06_m83lp31
+# Owner: Thorsten Diehl
+# Date: 01.12.2017
+# Description: Config-file for SCSI_cablepull_fio
+#
+#
+#################################################
+# M83 connection for GOOD PATH I/O
+# PCHID    CHPID    DEVNO    STORAGE SERVER
+# 260      67       5000     V7K06
+# 261      68       5040     V7K06
+
+#################################################
+# M83 connection for ERROR INJECTION
+# PCHID    CHPID    DEVNO    STORAGE SERVER 
+# 268      69       5080     V7K06
+# 269      6A       50C0     V7K06
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 1.) Define DEVNOs for M83LP31:
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+declare -a ZFCPADAPTOR=(0.0.5080 0.0.50c0) # error recovery
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 2.) Define Storage Server: values are DS8K,V7K
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+STORAGETYPE=V7K
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 3.) Define Storage Ports on V7000:
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+declare -a STORAGEPORTS=(0x500507680b2181fb 0x500507680b2281fb 0x500507680b2381fa 0x500507680b2481fa)
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 4.) Define SCSI LUNs on V7000:     
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+declare -a SCSILUNS=(0x0020000000000000 0x0021000000000000 0x0022000000000000 0x0023000000000000 0x0024000000000000 0x0025000000000000 0x0026000000000000 0x0027000000000000 0x0028000000000000 0x0029000000000000 0x002a000000000000 0x002b000000000000 0x002c000000000000 0x002d000000000000 0x002e000000000000 0x002f000000000000)
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 5.) LVM Configuration:
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+AMOUNTOFPARTITIONS=4
+LVM=TRUE
+if [ "${LVM}" == "TRUE" ]; then
+    AMOUNTOFPARTITIONS=1
+fi
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume1 
+# Creates a striped logical volume with 2 stripes, a stripesize of 8KB and a size of 1500MB
+# e.g. lvcreate -i 3 -I 8 -L 100M vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS1=2
+VGNAME1=VG1
+LVNAME1=LV1
+STRIPES1=2
+STRIPESIZE1=8
+LVSIZE1=1500MB
+   
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume2 
+# Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 3
+# devices (or option --alloc anywhere) - two for the mirror devices and one for the disk log.
+# e.g.  lvcreate -m1 -L 500M vg0
+# - - - - - - - - - - - - - - - - - - - - -
+PVS2=4
+VGNAME2=VG2
+LVNAME2=LV2
+MIRRORS=1
+LVSIZE2=1500MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume3 
+# Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 2
+# devices - the log is "in-memory"
+# e.g. lvcreate -m1 --mirrorlog core -L 500M vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS3=4
+VGNAME3=VG3
+LVNAME3=LV3
+MIRRORS=1
+LVSIZE3=1500MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume4 
+# Creates a linear logical volume
+# e.g  lvcreate -L 64M -n lvol1 vg00 /dev/sda:0-7 /dev/sdb:0-7
+# - - - - - - - - - - - - - - - - - - - - -
+PVS4=2
+VGNAME4=VG4
+LVNAME4=LV4
+LVSIZE4=1500MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume5 
+# Creates a 2GiB RAID5 logical volume, with 3 stripes (plus a parity drive for a total of 4 devices)
+# and a stripesize of 64KiB
+# e.g.  lvcreate --type raid5 -L 5G -i 3 -I 64 -n my_lv vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS5=4
+VGNAME5=VG5
+LVNAME5=LV5
+STRIPES5=3
+STRIPESIZE5=64
+LVSIZE5=2G
+

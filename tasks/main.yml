@@ -1,0 +1,25 @@
+---
+# tasks file for ROLE_storage_test
+
+
+- name: "Create testcase directory"
+  file:
+    path: "{{ script_dir }}"
+    state: directory
+
+- name: "Copy files to remote  {{ script_dir }}"
+  copy:
+    src: "files/"
+    dest: "{{ script_dir }}"
+    owner: root
+    group: root
+
+
+- name: "make link /usr/local/tp4/default/lib/storage -> {{ script_dir }}"
+  # LINK von /usr/local/tp4/default/lib/storage -> /usr/local/storage-test
+  # because of compatibility with  the old tp4
+  file:
+    path: "/usr/local/tp4/default/lib/storage"
+    src: "{{ script_dir }}"
+    state: link
+

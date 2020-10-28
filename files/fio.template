@@ -1,0 +1,14 @@
+blocksize_range=4k-32k
+rw=randrw
+percentage_random=50
+rwmixread=50
+iodepth=4
+numjobs=4
+ioengine=libaio
+verify=crc32c
+verify_fatal=1
+verify_dump=1
+verify_backlog=100000
+exitall_on_error=1
+time_based
+runtime=14d

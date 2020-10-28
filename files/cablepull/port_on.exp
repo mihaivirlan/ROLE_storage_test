@@ -1,0 +1,33 @@
+#!/usr/bin/expect
+
+# enable selected port
+
+set SWITCH [lindex $argv 0];
+set USERID [lindex $argv 1];
+set PASSWD [lindex $argv 2];
+set PORT   [lindex $argv 3];
+set timeout 30;
+
+# start ssh and logon to BROCADE switch
+
+send_user "$SWITCH $USERID $PASSWD $PORT\r"
+
+spawn /usr/bin/ssh -q -o stricthostkeychecking=no -l $USERID $SWITCH 
+
+expect {
+    "$USERID@$SWITCH's password:" { send "$PASSWD\r" }
+    timeout { send_user "\nssh to $SWITCH failed due to incorrect prompt\n"; exit 19 }
+    }
+
+expect {
+    -re "$SWITCH:.*$USERID>" { send "portenable $PORT\r" }
+    timeout { send_user "\nssh to $SWITCH failed due to incorrect login\n"; exit 24 }
+    }
+
+expect {
+    -re "portenable:" { send_user "\nportenable on $SWITCH failed\n"; exit 28 }
+    -re "$SWITCH:.*$USERID>" { send "exit\r" }
+    }
+
+set timestamp [timestamp -format %Y-%m-%d_%H:%M:%S]
+send_user "\n$timestamp portenable $PORT successfully completed\n"

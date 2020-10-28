@@ -1,0 +1,5 @@
+---
+# defaults file for ROLE_storage_test
+
+# script_dir
+script_dir: /usr/local/storage-test
