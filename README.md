@@ -9,7 +9,7 @@ __still under construction__  __!!__
 ROLE_storage_test
 ===================
 
-This repository contains the packages and configuration which is required for system-test executions.
+This repository contains the packages and configuration which is required for storage-test executions.
 
 ## Deployment
 
