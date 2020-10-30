@@ -6,41 +6,58 @@ __still under construction__  __!!__
 
 ---------------------------
 
-Role Name
-=========
+ROLE_storage_test
+===================
 
-A brief description of the role goes here.
+This repository contains the packages and configuration which is required for system-test executions.
 
-Requirements
-------------
+## Deployment
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This role can be used as an requirement in your requirements.yml file. After that you can use this role
+in your playbook.
 
-Role Variables
---------------
+### Requirements
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Add the following dependencies to your requirements.yml
 
-Dependencies
-------------
+``` yaml
+- name: distro-prereq
+  src: https://oauth2:<TOKEN>@github.ibm.com/Linux-On-Z-Test/ROLE_distro_prereq.git
+  scm: git
+- name: test-lib
+  src: https://oauth2:<TOKEN>@github.ibm.com/Linux-On-Z-Test/ROLE_test_lib.git
+  scm: git
+- name: test-defprogs
+  src: https://oauth2:<TOKEN>@github.ibm.com/Linux-On-Z-Test/ROLE_test_defprogs.git
+  scm: git
+- name: system-test
+  src: https://oauth2:<TOKEN>@github.ibm.com/Linux-On-Z-Test/ROLE_system_test.git
+  scm: git
+- name: storage-test
+  src: https://oauth2:<TOKEN>@github.ibm.com/Linux-On-Z-Test/ROLE_storage_test.git
+  scm: git
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+```
 
-Example Playbook
-----------------
+### storage_test
+Role dependencies
+- system_test
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
 
-License
--------
+This role creates a storage setup with the following steps
+- Installation of storage shell scripts like 15_LUN_Setup.sh
+ now at "/usr/local/storage-test/".
 
-BSD
+ - /usr/local/tp4/default/lib/storage is as a link still available:
 
-Author Information
-------------------
+ ```
+ /usr/local/tp4/default/lib/storage -> /usr/local//storage-test/
+ ```
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+- Installation of SCSI Luns configs at
+
+   ```
+   /usr/local/storage-test/configs/SCSI_basic_fio
+   /usr/local/storage-test/configs/SCSI_cablepull_fio
+   ```
