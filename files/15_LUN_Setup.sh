@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script-Name: 15_LUN_Setup.sh
 # Owner: Thorsten Diehl
-# Date: 17.08.2020
+# Date: 23.12.2020
 # Description:  Setting up the SCSI LUNs
 #
 # Load testlib
@@ -34,7 +34,7 @@ start_section 0 "Preparing Testsystem"
           shift
         done
         if [ "${MPATH_CONF_REPLACE}" == "TRUE" ]; then
-          assert_exec 0 "cp -p ${TESTLIBDIR}lib/storage/multipath.conf /etc"
+          assert_exec 0 "cp -p /usr/local/storage-test/multipath.conf /etc"
         fi
 
 
