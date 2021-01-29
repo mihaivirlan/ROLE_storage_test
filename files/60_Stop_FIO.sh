@@ -4,6 +4,17 @@
 # Date: 20.12.2016
 # Description:  Stop FIO filesystem I/O
 #
+# 29.01.2021 TL removed variables.sh
+#                $MOUNT_DIR and $FIO_LOG_DIR should now in the ansible *yml file
+#                set.
+#                e.g. in the host part:
+#                     |- hosts: DASD_fio_basic
+#                     |  roles:
+#                     |    - DASD_fio_basic
+#                     |  environment:
+#                     |    MOUNT_DIR: "/mnt2"
+#                     |    FIO_LOG_DIR: "/root/DASD_fio_basic/log"
+#
 #
 #
 DEBUG=yes
@@ -16,7 +27,8 @@ source ${TESTLIBDIR}lib/common/remote.sh || exit 1
 #source ${TESTLIBDIR}00_config-file || exit 1
 [[ -r ${TESTLIBDIR}00_config-file ]] && source ${TESTLIBDIR}00_config-file
 source ${TESTLIBDIR}functions.sh || exit 1
-source ${TESTLIBDIR}variables.sh || exit 1
+#source ${TESTLIBDIR}variables.sh || exit 1
+[[ -r ${TESTLIBDIR}variables.sh ]] && source ${TESTLIBDIR}variables.sh
 
 start_section 0 "Stopping FIO"
     stopFIO
