@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script-Name: 20_Setup.sh
 # Owner: Thorsten Diehl
-# Date: 17.08.2020
+# Date: 03.02.2021
 # Description: Setting up the partitions or the LVM, create filesystems
 # If parameter -reuse_lvs is given, the Logical Volumes are being reused.
 #   The LVM must be functional. This can not be achieved after a cleanup!
@@ -47,9 +47,6 @@ start_section 0 "Setting up test system"
                 ;;
             btrfs )
                 FSTYPE=("${FSTYPE[@]}" "mkfs.btrfs -f")
-                ;;
-            reiserfs )
-                FSTYPE=("${FSTYPE[@]}" "mkfs.reiserfs -q -f")
                 ;;
          esac
        shift
