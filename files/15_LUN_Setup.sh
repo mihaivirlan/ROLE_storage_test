@@ -106,31 +106,20 @@ start_section 0 "Preparing Testsystem"
         vgchange -an
         echo "flushing multipath table for devices not in use..."
         multipath -F
-        which systemctl >/dev/null
-        if [ $? -eq 0 ]; then
-            if (isUbuntu); then
-                systemctl is-active multipath-tools.service
-                if [ $? -ne 0 ]; then
-                    assert_exec 0 "systemctl start multipath-tools.service"
-                else
-                    assert_warn 0 0 "multipath-tools.service was already running"
-                fi
+        if (isUbuntu); then
+            systemctl is-active multipath-tools.service
+            if [ $? -ne 0 ]; then
+                assert_exec 0 "systemctl start multipath-tools.service"
             else
-                systemctl is-active multipathd.service
-                if [ $? -ne 0 ]; then
-                    assert_exec 0 "systemctl start multipathd.service"
-                else
-                    assert_warn 0 0 "multipathd.service was already running"
-                fi
+                assert_warn 0 0 "multipath-tools.service was already running"
             fi
         else
-            service multipathd status
-            RC=$?
-            if [ ${RC} -ne 0 ]; then
-                assert_exec 0 "service multipathd start"
-           else
-                assert_warn 0 0 "multipathd was already running"
-           fi
+            systemctl is-active multipathd.service
+            if [ $? -ne 0 ]; then
+                assert_exec 0 "systemctl start multipathd.service"
+            else
+                assert_warn 0 0 "multipathd.service was already running"
+            fi
         fi
     end_section 1
 
