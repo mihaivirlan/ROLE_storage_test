@@ -112,7 +112,7 @@ start_section 1 "Deactivating disks"
     fi
     
     if [ "$MOUNT_DIR" == "/mnt2" ] || [ "$MOUNT_DIR" == "/mnt3" ]; then  # path for DASDs and EDEVs
-        # Thomas, hier gibt's noch was zu tun
+        echo "Thomas, hier gibt's noch was zu tun!"
     fi
   end_section 1
 end_section 0
