@@ -1,36 +1,35 @@
 #!/bin/bash
-# Script-Name: 10_Cleanup.sh
+# Script-Name: 80_Cleanup.sh
 # Owner: Thorsten Diehl
-# Date: 13.12.2016
+# Date: 03.02.2021
 # Description:  Perform a cleanup
-# If parameter -cleanup_all is given, the entire LVM and all partitiona are removed
+#
+# SCSI:
+# If parameter -cleanup_lvm is given, the entire LVM and all partitions are removed
 # Be aware: the existing deviceList.txt is being considered!
-#
-#
+# DASD & EDEV:
+# t.b.d.
 #
 
 DEBUG=yes
-DOCLEANUP=FALSE
+CLEANUP_LVM=FALSE
 # Load testlib
 TESTLIBDIR="${TESTLIBDIR:-$(dirname $0)/}"
 
 source ${TESTLIBDIR}lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}lib/common/results.sh || exit 1
 source ${TESTLIBDIR}lib/common/remote.sh || exit 1
-source ${TESTLIBDIR}00_config-file || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
-source ${TESTLIBDIR}variables.sh || exit 1
+source ${TESTLIBDIR}00_config-file 
+source ${TESTLIBDIR}variables.sh 
 
 start_section 0 "Cleaning up test system"
 
     while [ $# -ne 0 ]
     do
        case "$1" in
-            --cleanup_all )
-                DOCLEANUP=TRUE
-                ;;
-            -cleanup_all )
-                DOCLEANUP=TRUE
+            --cleanup_lvm )
+                CLEANUP_LVM=TRUE
                 ;;
         esac
         shift
@@ -38,42 +37,55 @@ start_section 0 "Cleaning up test system"
 
 # unmount filesystems first
 
-    start_section 1 "Unmounting filesystems"
+# determine the type of ATC to compute the variable MOUNT_DIR
+echo $TESTLIBDIR | grep SCSI_ && MOUNT_DIR="/mnt1"
+echo $TESTLIBDIR | grep DASD_ && MOUNT_DIR="/mnt2"
+echo $TESTLIBDIR | grep EDEV_ && MOUNT_DIR="/mnt3"
+
+start_section 1 "Unmounting filesystems"
+    echo "$0 is running with"
+    echo "MOUNT_DIR  = $MOUNT_DIR"
+    echo " "
+    if [ "$MOUNT_DIR" != "" ]; then
         unmountFilesystem
-    end_section 1
+    else
+        echo "No valid mount directory determined, exiting..."
+        exit 1;
+    fi
+end_section 1
 
-    if [ "${DOCLEANUP}" == "TRUE" ]; then
+start_section 1 "Deactivating disks"
 
-# determine if LVM is used
-
-        if [ "${LVM}" == "TRUE" ]; then
-            start_section 1 "Removing logical volumes"
+    if [ "$MOUNT_DIR" == "/mnt1" ]; then  # path for SCSI LUNs 
+        # determine if LVM is used
+        if [ "${CLEANUP_LVM}" == "TRUE" ] && [ "${LVM}" == "TRUE" ]; then
+            start_section 2 "Removing logical volumes"
                 removeLogicalVolumes
-            end_section 1
+            end_section 2
 
-            start_section 1 "Removing volumegroups"
+            start_section 2 "Removing volumegroups"
                 removeVolumegroups
-            end_section 1
+            end_section 2
 
-            start_section 1 "Removing physical volumes"
+            start_section 2 "Removing physical volumes"
                 removePhysicalVolumes
-            end_section 1
+            end_section 2
         fi
 
-# delete partion(s)
+# delete partition(s)
 
-        start_section 1 "Deleting partition on multipath devices"
+        start_section 2 "Deleting partition on multipath devices"
             createDeviceList
             deletePartitions
-        end_section 1
+        end_section 2
 
-        start_section 1 "Flush all multipath devices"
+        start_section 2 "Flush all multipath devices"
             dmsetup remove_all
             assert_exec 0 sleep 1
             multipath -F
-        end_section 1
+        end_section 2
 
-        start_section 1 "Stop multipath daemon"
+        start_section 2 "Stop multipath daemon"
             which systemctl 2>/dev/null
             if [ $? -eq 0 ]; then
                 systemctl is-active multipathd.service
@@ -91,9 +103,9 @@ start_section 0 "Cleaning up test system"
                     assert_exec 0 "service multipathd stop"
                 fi
             fi
-        end_section 1
+        end_section 2
 
-        start_section 1 "Removing SCSI LUNs from test system"
+        start_section 2 "Removing SCSI LUNs from test system"
             for ADAPTOR in ${ZFCPADAPTOR[@]}; do
                 for WWPN in ${STORAGEPORTS[@]}; do
                     for LUN in ${SCSILUNS[@]}; do
@@ -106,11 +118,11 @@ start_section 0 "Cleaning up test system"
                     done
                 done
             done
-        end_section 1
-    else
-
-        assert_warn 0 0 "Cleanup skipped by user"
-
+        end_section 2
     fi
-
+    
+    if [ "$MOUNT_DIR" == "/mnt2" ] || [ "$MOUNT_DIR" == "/mnt3" ]; then  # path for DASDs and EDEVs
+        # Thomas, hier gibt's noch was zu tun
+    fi
+  end_section 1
 end_section 0
