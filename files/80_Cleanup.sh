@@ -38,9 +38,9 @@ start_section 0 "Cleaning up test system"
 # unmount filesystems first
 
 # determine the type of ATC to compute the variable MOUNT_DIR
-echo $TESTLIBDIR | grep SCSI_ && MOUNT_DIR="/mnt1"
-echo $TESTLIBDIR | grep DASD_ && MOUNT_DIR="/mnt2"
-echo $TESTLIBDIR | grep EDEV_ && MOUNT_DIR="/mnt3"
+echo $(basename $(pwd)) | grep SCSI_ && MOUNT_DIR="/mnt1"
+echo $(basename $(pwd)) | grep DASD_ && MOUNT_DIR="/mnt2"
+echo $(basename $(pwd)) | grep EDEV_ && MOUNT_DIR="/mnt3"
 
 start_section 1 "Unmounting filesystems"
     echo "$0 is running with"
