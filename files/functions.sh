@@ -5,33 +5,23 @@
 # Date: 03.02.2021
 # Description:  all required functions are contained here
 #
-# backticks removed, replaced by $(...) for better POSIX compliance
+# function add_lun improved to use toybox function 
 #
 
 function add_lun {
     ADAPTOR=$1
     WWPN=$2
     LUN=$3
-    for r in $(seq 0 10); do
-        if (isSles12 || isRhel7); then
-            echo ${LUN} > /sys/bus/ccw/drivers/zfcp/${ADAPTOR}/${WWPN}/unit_add
-        else
-            chzdev zfcp-lun ${ADAPTOR}:${WWPN}:${LUN} -e -a
-        fi
-        udevadm settle
-        lszfcp -D | grep  ${ADAPTOR} | grep ${WWPN} | grep ${LUN}
-        RC=$?
-        if [ $RC -eq 0 ]; then break;
-        fi
-        if (isSles12 || isRhel7); then
-            echo ${LUN} > /sys/bus/ccw/drivers/zfcp/${ADAPTOR}/${WWPN}/unit_remove
-        else
-            chzdev zfcp-lun ${ADAPTOR}:${WWPN}:${LUN} -d -a 2> /dev/null
-        fi
-            udevadm settle
-    done
+    if [ $(common::getDistributionName) == rhel-7 ]; then
+        scsi::addLunSYSFS ${ADAPTOR} ${WWPN} ${LUN}
+    else
+        scsi::addLun      ${ADAPTOR} ${WWPN} ${LUN}
+    fi
+    udevadm settle
+    lszfcp -D | grep  ${ADAPTOR} | grep ${WWPN} | grep ${LUN}
+    RC=$?
     PORTTYPE=$(lszfcp -Ha -b ${ADAPTOR}|grep port_type|cut -f 2 -d '"' )
-    assert_fail $RC 0 "PASSED = LUN ${LUN} could be attached via ${PORTTYPE} adaptor ${ADAPTOR} and remote port ${WWPN} with $r retries"
+    assert_fail $RC 0 "PASSED = LUN ${LUN} could be attached via ${PORTTYPE} adaptor ${ADAPTOR} and remote port ${WWPN}"
 }
 	
 function checkZfcpStatus {
