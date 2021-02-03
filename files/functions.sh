@@ -2,10 +2,10 @@
 #set -x 
 # Script-Name: functions.sh
 # Owner: Thorsten Diehl
-# Date: 30.09.2020
+# Date: 03.02.2021
 # Description:  all required functions are contained here
 #
-# function mountingFilesystem renamed to mountingPartitions and rewritten
+# backticks removed, replaced by $(...) for better POSIX compliance
 #
 
 function add_lun {
@@ -37,9 +37,9 @@ function add_lun {
 function checkZfcpStatus {
     if [ $STORAGETYPE == "V7K" ]; then
         # This is to handle V7K LUN attachments in that way, that WWPNs are matched to zfp devices alternately
-        for n in `seq 0 $((${#ZFCPADAPTOR[@]}-1))`; do
+        for n in $(seq 0 $((${#ZFCPADAPTOR[@]}-1))); do
             ADAPTOR=${ZFCPADAPTOR[$n]}
-            for m in `seq $n ${#ZFCPADAPTOR[@]} $((${#STORAGEPORTS[@]}-1))`; do
+            for m in $(seq $n ${#ZFCPADAPTOR[@]} $((${#STORAGEPORTS[@]}-1))); do
                 WWPN=${STORAGEPORTS[$m]}
                 lszfcp -Pa -b $ADAPTOR -p $WWPN | grep -i port_state | grep -q -i online
                 assert_fail $? 0 "Target port $WWPN is working and online with login from $ADAPTOR"
@@ -71,12 +71,12 @@ function createDeviceList {
 
     if [ ! -e ${DEVICE_LIST} ]; then
         if [ "${STORAGETYPE}" == "DS8K" ]; then
-            LUNLIST=(`cat $CONFIG_FILE | grep  "^declare -a SCSILUNS" | sed 's/declare -a SCSILUNS=//g;s/(//g;s/)//'`)
+            LUNLIST=($(cat $CONFIG_FILE | grep  "^declare -a SCSILUNS" | sed 's/declare -a SCSILUNS=//g;s/(//g;s/)//'))
             for LUN in ${LUNLIST[@]}; do
-                STRING=`echo ${LUN:4:2};echo ${LUN:8:2}`
-                SUBSTRING=`echo ${STRING//[[:space:]]}\)`
-                LINE=`multipathd show topo | grep ${SUBSTRING} | sort -k 1 | sed 's/(//g;s/)//g;s/create: //g'`
-                MPATHDEV=/dev/disk/by-id/dm-name-`echo ${LINE} | awk '{print $1" "$2" "$3" "$4" "$5}'`
+                STRING=$(echo ${LUN:4:2};echo ${LUN:8:2})
+                SUBSTRING=$(echo ${STRING//[[:space:]]}\))
+                LINE=$(multipathd show topo | grep ${SUBSTRING} | sort -k 1 | sed 's/(//g;s/)//g;s/create: //g')
+                MPATHDEV=/dev/disk/by-id/dm-name-$(echo ${LINE} | awk '{print $1" "$2" "$3" "$4" "$5}')
                 echo ${MPATHDEV} >> ${DEVICE_LIST}
                 echo ${MPATHDEV} added...
             done
@@ -84,7 +84,7 @@ function createDeviceList {
             multipathd show topo | grep "IBM" | grep -v "IBM,2107" | sort -k 1 | sed 's/(//g;s/)//g;s/create: //g' 1>multipath.txt 2>&1
             cat multipath.txt |
             while read LINE; do
-                MPATHDEV=/dev/disk/by-id/dm-name-`echo ${LINE} | awk '{print $1" "$2" "$3" "$4" "$5}'`
+                MPATHDEV=/dev/disk/by-id/dm-name-$(echo ${LINE} | awk '{print $1" "$2" "$3" "$4" "$5}')
                 echo ${MPATHDEV} >> ${DEVICE_LIST}
                 echo ${MPATHDEV} added...
              done
@@ -101,7 +101,7 @@ function createFIOLists {
     
     rm -f *.fio 
     if [ "${LVM}" == "TRUE" ]; then 
-        MOUNT_POINTS=(`lvs -o lv_all --noheadings --separator : | awk -F: '{print $2}'`)
+        MOUNT_POINTS=($(lvs -o lv_all --noheadings --separator : | awk -F: '{print $2}'))
         for ((i=0; i<${#MOUNT_POINTS[@]}; i++)); do
             if grep ${MOUNT_POINTS[$i]} /proc/mounts > /dev/null 2>&1; then
                 fstype=$(stat -f -c %T ${MOUNT_DIR}/${MOUNT_POINTS[$i]})
@@ -131,10 +131,10 @@ function createFIOLists {
     else 
         cat ${DEVICE_LIST} |
         while read LINE; do
-            if [[ `echo ${LINE}` != "" ]]; then
-                DEVICE=`echo ${LINE} | awk '{print $1}'`
-                MOUNT_POINTS=(`ls ${DEVICE}* | grep "part\|p[1-9]\|[1-9]$" |  awk -F "/" '{print $5}'`)
-                if [ `echo ${#MOUNT_POINTS[@]}` -ne 0 ]; then
+            if [[ $(echo ${LINE}) != "" ]]; then
+                DEVICE=$(echo ${LINE} | awk '{print $1}')
+                MOUNT_POINTS=($(ls ${DEVICE}* | grep "part\|p[1-9]\|[1-9]$" |  awk -F "/" '{print $5}'))
+                if [ $(echo ${#MOUNT_POINTS[@]}) -ne 0 ]; then
                     for ((i=0; i<${#MOUNT_POINTS[@]}; i++)); do                
                         if grep ${MOUNT_POINTS[$i]} /proc/mounts > /dev/null 2>&1; then 
                             fstype=$(stat -f -c %T ${MOUNT_DIR}/${MOUNT_POINTS[$i]})
@@ -192,8 +192,8 @@ function createFilesystemOnPartition {
         echo "creating filesystems on ${PARTITIONS[$i]}"
         ${FSTYPE[$FSCOUNT]} ${PARTITIONS[$i]}
         assert_fail $? 0 "${FSTYPE[$FSCOUNT]} ${PARTITIONS[$i]}"
-        if [ ${FSCOUNT} -lt `expr ${#FSTYPE[@]} - 1` ]; then
-            FSCOUNT=`expr ${FSCOUNT} + 1`
+        if [ ${FSCOUNT} -lt $(expr ${#FSTYPE[@]} - 1) ]; then
+            FSCOUNT=$(expr ${FSCOUNT} + 1)
         else
             FSCOUNT=0
         fi
@@ -205,7 +205,7 @@ function createFilesystemOnPartition {
 
 function createFilesystemOnLV {
 
-    VOLUMELIST=(`lvs -o lv_path --noheadings`)
+    VOLUMELIST=($(lvs -o lv_path --noheadings))
     FSCOUNT=0
     for ((i=0; i<${#VOLUMELIST[@]}; i++)); do
         echo "creating filesystems on ${VOLUMELIST[$i]}"
@@ -213,8 +213,8 @@ function createFilesystemOnLV {
         ${FSTYPE[$FSCOUNT]} ${VOLUMELIST[$i]}
         assert_fail $? 0 "${FSTYPE[$FSCOUNT]} ${VOLUMELIST[$i]}"
         sleep 2
-        if [ ${FSCOUNT} -lt `expr ${#FSTYPE[@]} - 1` ]; then
-            FSCOUNT=`expr ${FSCOUNT} + 1`
+        if [ ${FSCOUNT} -lt $(expr ${#FSTYPE[@]} - 1) ]; then
+            FSCOUNT=$(expr ${FSCOUNT} + 1)
         else
             FSCOUNT=0
         fi
@@ -312,9 +312,9 @@ function createPartition {
       
     cat ${DEVICE_LIST} |
     while read LINE; do
-        if [[ `echo ${LINE}` != "" ]]; then
-            DEVICE=`echo ${LINE} | awk '{print $1}'`
-            STORAGENAME=`echo ${LINE} | awk '{print $4}'`
+        if [[ $(echo ${LINE}) != "" ]]; then
+            DEVICE=$(echo ${LINE} | awk '{print $1}')
+            STORAGENAME=$(echo ${LINE} | awk '{print $4}')
             echo
             echo "partitioning ${DEVICE} on storage unit ${STORAGENAME}"
             SIZE=$(parted ${DEVICE} -s unit MiB print | grep "Disk /" | awk '{print $3}')
@@ -367,7 +367,7 @@ function createPhysicalVolumes {
 
 function createVolumegroups {
     
-    PHYSICAL_VOLUMES=(`pvs -o pv_all --noheadings --separator : | awk -F: '{print $4}'`)
+    PHYSICAL_VOLUMES=($(pvs -o pv_all --noheadings --separator : | awk -F: '{print $4}'))
     NUMBER_PHYSICAL_VOLUMES=(${PVS1} ${PVS2} ${PVS3} ${PVS4} ${PVS5})
     VOLUMEGROUPS=(${VGNAME1} ${VGNAME2} ${VGNAME3} ${VGNAME4} ${VGNAME5})
     START=0
@@ -376,7 +376,7 @@ function createVolumegroups {
         vgcreate -f -y ${VOLUMEGROUPS[$i]} ${PHYSICAL_VOLUMES[@]:${START}:${NUMBER_PHYSICAL_VOLUMES[$i]}}
         assert_fail $? 0 "PASSED if volume ${VOLUMEGROUPS[$i]} group could be created"
         sleep 0.5
-        START=`expr ${START} + ${NUMBER_PHYSICAL_VOLUMES[$i]}`
+        START=$(expr ${START} + ${NUMBER_PHYSICAL_VOLUMES[$i]})
     done
     echo
     echo "Listing all volumegroups:"
@@ -388,8 +388,8 @@ function deletePartitions {
 
     cat ${DEVICE_LIST} |
     while read LINE; do
-        STORAGENAME=`echo ${LINE} | awk '{print $4}'`
-        DEVICE=`echo ${LINE} | awk '{print $1}'`
+        STORAGENAME=$(echo ${LINE} | awk '{print $4}')
+        DEVICE=$(echo ${LINE} | awk '{print $1}')
                 
         assert_warn 0 0 "deleting partition(s) on ${DEVICE} on storage unit ${STORAGENAME}"
 
@@ -431,8 +431,8 @@ function mountingLogicalVolumes {
         fi
     fi
 
-    VOLUMELIST=(`lvs -o lv_path --noheadings`)
-    MOUNT_POINTS=(`lvs -o lv_name --noheadings`)
+    VOLUMELIST=($(lvs -o lv_path --noheadings))
+    MOUNT_POINTS=($(lvs -o lv_name --noheadings))
 
     for ((i=0; i<${#VOLUMELIST[@]}; i++)); do
         if [[ -d  ${MOUNT_DIR}/${MOUNT_POINTS[$i]} ]]; then
@@ -492,7 +492,7 @@ function removeLogicalVolumes {
 
     lvs 1>lvs.txt
     if [ -s lvs.txt ]; then 
-        VOLUMELIST=`lvs -o lv_all --noheadings --separator : | awk -F: '{print $3}'`
+        VOLUMELIST=$(lvs -o lv_all --noheadings --separator : | awk -F: '{print $3}')
         for I in ${VOLUMELIST}; do
             echo "lvchange -an $I"
             lvchange -an $I
@@ -512,7 +512,7 @@ function removePhysicalVolumes {
 
     pvs 1>pvs.txt
     if [ -s pvs.txt ]; then    
-        PVLIST=`pvs -o pv_all --noheadings --separator : | awk -F: '{print $4}'`
+        PVLIST=$(pvs -o pv_all --noheadings --separator : | awk -F: '{print $4}')
         for I in ${PVLIST}; do
             echo "pvremove -ff $I"
             pvremove -ff $I
@@ -530,7 +530,7 @@ function removeVolumegroups {
 
     vgs 1>vgs.txt
     if [ -s vgs.txt ]; then
-        VOLUMEGROUPLIST=`vgs -o vg_all --noheadings --separator : | awk -F: '{print $3}'`
+        VOLUMEGROUPLIST=$(vgs -o vg_all --noheadings --separator : | awk -F: '{print $3}')
         for I in ${VOLUMEGROUPLIST}; do
             echo "vgchange -an $I"
             vgchange -an $I
