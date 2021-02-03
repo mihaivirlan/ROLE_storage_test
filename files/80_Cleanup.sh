@@ -86,21 +86,12 @@ start_section 1 "Deactivating disks"
         end_section 2
 
         start_section 2 "Stop multipath daemon"
-            which systemctl 2>/dev/null
+            systemctl is-active multipathd.service
             if [ $? -eq 0 ]; then
-                systemctl is-active multipathd.service
-                if [ $? -eq 0 ]; then
-                    if (isUbuntu); then
-                        assert_exec 0 "systemctl stop multipath-tools.service"
-                    else
-                        assert_exec 0 "systemctl stop multipathd.service"
-                    fi
-                fi
-            else
-                service multipathd status
-                RC=$?
-                if [ ${RC} -eq 0 ]; then
-                    assert_exec 0 "service multipathd stop"
+                if (isUbuntu); then
+                    assert_exec 0 "systemctl stop multipath-tools.service"
+                else
+                    assert_exec 0 "systemctl stop multipathd.service"
                 fi
             fi
         end_section 2
