@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script-Name: 15_LUN_Setup.sh
 # Owner: Thorsten Diehl
-# Date: 23.12.2020
+# Date: 03.02.2021
 # Description:  Setting up the SCSI LUNs
 #
 # Load testlib
@@ -34,6 +34,7 @@ start_section 0 "Preparing Testsystem"
           shift
         done
         if [ "${MPATH_CONF_REPLACE}" == "TRUE" ]; then
+          echo "Replace /etc/multipath.conf"
           assert_exec 0 "cp -p /usr/local/storage-test/multipath.conf /etc"
         fi
 
@@ -62,7 +63,11 @@ start_section 0 "Preparing Testsystem"
                 echo "Adaptor ${ADAPTOR} found on system."
             fi
             echo "Setting Adaptor ${ADAPTOR} online..."
-            chccwdev -e ${ADAPTOR}
+            if (isRhel7); then
+              chccwdev -e ${ADAPTOR}
+            else
+              chzdev zfcp-host -e -a ${ADAPTOR}
+            fi
             assert_fail $? 0 "PASSED if ADAPTOR ${ADAPTOR} could be set online"
         done
     udevadm settle
