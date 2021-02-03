@@ -19,6 +19,8 @@ TESTLIBDIR="${TESTLIBDIR:-$(dirname $0)/}"
 source ${TESTLIBDIR}lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}lib/common/results.sh || exit 1
 source ${TESTLIBDIR}lib/common/remote.sh || exit 1
+source ${TESTLIBDIR}lib/toybox/common/libcommon.sh || exit 1
+source ${TESTLIBDIR}lib/toybox/storage/libscsi.sh || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
 source ${TESTLIBDIR}00_config-file 
 source ${TESTLIBDIR}variables.sh 
@@ -99,12 +101,12 @@ start_section 1 "Deactivating disks"
             for ADAPTOR in ${ZFCPADAPTOR[@]}; do
                 for WWPN in ${STORAGEPORTS[@]}; do
                     for LUN in ${SCSILUNS[@]}; do
-                        if [ -d  /sys/bus/ccw/drivers/zfcp/${ADAPTOR}/${WWPN}/${LUN} ]; then
-                            echo ${LUN} > /sys/bus/ccw/drivers/zfcp/${ADAPTOR}/${WWPN}/unit_remove
-                            assert_fail $? 0 "PASSED if LUN ${LUN} could be removed from adaptor ${ADAPTOR} and remote port ${WWPN}"
+                        if [ $(common::getDistributionName) == rhel-7 ]; then
+                            scsi::removeLunSYSFS ${ADAPTOR} ${WWPN} ${LUN}
                         else
-                            assert_warn 0 0 "LUN ${LUN} could not be found on adaptor ${ADAPTOR} and remote port ${WWPN}"
+                            scsi::removeLun      ${ADAPTOR} ${WWPN} ${LUN}
                         fi
+                        assert_fail $? 0 "PASSED if LUN ${LUN} could be removed from adaptor ${ADAPTOR} and remote port ${WWPN}"
                     done
                 done
             done
@@ -115,4 +117,5 @@ start_section 1 "Deactivating disks"
         echo "Thomas, hier gibt's noch was zu tun!"
     fi
   end_section 1
+show_test_results
 end_section 0
