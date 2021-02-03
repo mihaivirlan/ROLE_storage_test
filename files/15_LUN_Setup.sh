@@ -12,6 +12,7 @@ source ${TESTLIBDIR}lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}lib/common/results.sh || exit 1
 source ${TESTLIBDIR}lib/common/remote.sh || exit 1
 source ${TESTLIBDIR}lib/toybox/common/libcommon.sh || exit 1
+source ${TESTLIBDIR}lib/toybox/storage/libscsi.sh || exit 1
 source ${TESTLIBDIR}00_config-file || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
 source ${TESTLIBDIR}variables.sh || exit 1
