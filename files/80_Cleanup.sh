@@ -70,14 +70,13 @@ start_section 1 "Deactivating disks"
             start_section 2 "Removing physical volumes"
                 removePhysicalVolumes
             end_section 2
+
+            # delete partition(s)
+            start_section 2 "Deleting partition on multipath devices"
+                createDeviceList
+                deletePartitions
+            end_section 2
         fi
-
-# delete partition(s)
-
-        start_section 2 "Deleting partition on multipath devices"
-            createDeviceList
-            deletePartitions
-        end_section 2
 
         start_section 2 "Flush all multipath devices"
             dmsetup remove_all
