@@ -1,11 +1,11 @@
 #!/bin/bash
 # Script-Name: 80_Cleanup.sh
 # Owner: Thorsten Diehl
-# Date: 03.02.2021
+# Date: 04.02.2021
 # Description:  Perform a cleanup
 #
 # SCSI:
-# If parameter -cleanup_lvm is given, the entire LVM and all partitions are removed
+# If parameter --cleanup_lvm is given, the entire LVM and all partitions are removed
 # Be aware: the existing deviceList.txt is being considered!
 # DASD & EDEV:
 # t.b.d.
