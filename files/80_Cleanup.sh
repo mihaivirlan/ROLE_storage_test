@@ -71,7 +71,6 @@ start_section 1 "Deactivating disks"
 
             # delete partition(s)
             start_section 2 "Deleting partition on multipath devices"
-                createDeviceList
                 deletePartitions
             end_section 2
         fi
