@@ -1,7 +1,7 @@
 #!/bin/bash  
 # Script-Name: 30_Mount_Filesystems.sh
 # Owner: Thorsten Diehl
-# Date: 30.09.2020
+# Date: 04.03.2021
 # Description:  Mounting filesystems of logical volumes
 #               or of the partitions under test
 #
@@ -16,7 +16,6 @@ source ${TESTLIBDIR}lib/common/remote.sh || exit 1
 source ${TESTLIBDIR}lib/toybox/common/libcommon.sh || exit 1
 source ${TESTLIBDIR}00_config-file || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
-source ${TESTLIBDIR}variables.sh || exit 1
 
 start_section 0 "Mounting filesystems"
     if [ "${LVM}" == "TRUE" ]; then

@@ -23,7 +23,8 @@ source ${TESTLIBDIR}lib/toybox/common/libcommon.sh || exit 1
 source ${TESTLIBDIR}lib/toybox/storage/libscsi.sh || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
 source ${TESTLIBDIR}00_config-file 
-source ${TESTLIBDIR}variables.sh 
+
+# the variable MOUNT_DIR is expected to be set in the <ATC>.yml file
 
 start_section 0 "Cleaning up test system"
 
@@ -38,11 +39,6 @@ start_section 0 "Cleaning up test system"
     done
 
 # unmount filesystems first
-
-# determine the type of ATC to compute the variable MOUNT_DIR
-echo $(basename $(pwd)) | grep SCSI_ && MOUNT_DIR="/mnt1"
-echo $(basename $(pwd)) | grep DASD_ && MOUNT_DIR="/mnt2"
-echo $(basename $(pwd)) | grep EDEV_ && MOUNT_DIR="/mnt3"
 
 start_section 1 "Unmounting filesystems"
     echo "$0 is running with"

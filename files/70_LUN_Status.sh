@@ -1,7 +1,7 @@
 #!/bin/bash  
 # Script-Name: 70_LUN_Status.sh
 # Owner: Thorsten Diehl
-# Date: 29.05.2020
+# Date: 04.02.2021
 # Description:  Checking port and LUN Status after test and also multipath status
 #
 #
@@ -16,7 +16,6 @@ source ${TESTLIBDIR}lib/common/results.sh || exit 1
 source ${TESTLIBDIR}lib/common/remote.sh || exit 1
 source ${TESTLIBDIR}00_config-file || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
-source ${TESTLIBDIR}variables.sh || exit 1
 
 
 start_section 0 "Verifying SCSI LUN status at test end"

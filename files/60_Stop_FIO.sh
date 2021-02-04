@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script-Name: 60_Stop_FIO.sh
 # Owner: Thorsten Diehl
-# Date: 20.12.2016
+# Date: 04.02.2021
 # Description:  Stop FIO filesystem I/O
 #
 # 29.01.2021 TL removed variables.sh
@@ -24,11 +24,8 @@ TESTLIBDIR="${TESTLIBDIR:-$(dirname $0)/}"
 source ${TESTLIBDIR}lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}lib/common/results.sh || exit 1
 source ${TESTLIBDIR}lib/common/remote.sh || exit 1
-#source ${TESTLIBDIR}00_config-file || exit 1
-[[ -r ${TESTLIBDIR}00_config-file ]] && source ${TESTLIBDIR}00_config-file
 source ${TESTLIBDIR}functions.sh || exit 1
-#source ${TESTLIBDIR}variables.sh || exit 1
-[[ -r ${TESTLIBDIR}variables.sh ]] && source ${TESTLIBDIR}variables.sh
+[[ -r ${TESTLIBDIR}00_config-file ]] && source ${TESTLIBDIR}00_config-file
 
 start_section 0 "Stopping FIO"
     stopFIO

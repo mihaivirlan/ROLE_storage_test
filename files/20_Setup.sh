@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script-Name: 20_Setup.sh
 # Owner: Thorsten Diehl
-# Date: 03.02.2021
+# Date: 04.02.2021
 # Description: Setting up the partitions or the LVM, create filesystems
 # If parameter -reuse_lvs is given, the Logical Volumes are being reused.
 #   The LVM must be functional. This can not be achieved after a cleanup!
@@ -18,7 +18,6 @@ source ${TESTLIBDIR}lib/common/remote.sh || exit 1
 source ${TESTLIBDIR}lib/toybox/common/libcommon.sh || exit 1
 source ${TESTLIBDIR}00_config-file || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
-source ${TESTLIBDIR}variables.sh || exit 1
 
 
 start_section 0 "Setting up test system"
@@ -134,24 +133,24 @@ start_section 0 "Setting up test system"
 # execute this in any case
 
     if  [ "${LVM}" == "TRUE" ]; then        
-            start_section 1 "Creating different filesystems on logical volumes"
-                vgchange -an
-                sleep 1
-                udevadm settle 
-		multipath -r
-                udevadm settle 
-                assert_exec 0 "vgchange -ay"
-                sleep 1
-                udevadm settle 
-                createFilesystemOnLV
-            end_section 1
-
+        start_section 1 "Creating different filesystems on logical volumes"
+            vgchange -an
+            sleep 1
+            udevadm settle 
+            multipath -r
+            udevadm settle 
+            assert_exec 0 "vgchange -ay"
+            sleep 1
+            if [ $(lvs |wc -l) -eq 0 ]; then
+                assert_fail 0 1 "no logical volumes found"
+            fi 
+            udevadm settle 
+            createFilesystemOnLV
+        end_section 1
     else
-    
-            start_section 1 "Creating different filesystems on partitions"
-                createFilesystemOnPartition
-            end_section 1    
-
+        start_section 1 "Creating different filesystems on partitions"
+            createFilesystemOnPartition
+        end_section 1    
     fi
 
 show_test_results

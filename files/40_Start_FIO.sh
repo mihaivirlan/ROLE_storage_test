@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script-Name: 40_Start_FIO.sh
 # Owner: Thorsten Diehl
-# Date: 16.01.2017
+# Date: 04.02.2021
 # Description:  Start FIO on each file system
 #
 # 23.01.2020 Thomas Lambart fio via upm
@@ -17,9 +17,7 @@ TESTLIBDIR="${TESTLIBDIR:-$(dirname $0)/}"
 source ${TESTLIBDIR}lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}lib/common/results.sh || exit 1
 source ${TESTLIBDIR}lib/common/remote.sh || exit 1
-# source ${TESTLIBDIR}00_config-file || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
-source ${TESTLIBDIR}variables.sh || exit 1
 [[ -r ${TESTLIBDIR}00_config-file ]] && source ${TESTLIBDIR}00_config-file
 
 start_section 0 "Starting FIO against mounted filesystems"
