@@ -61,7 +61,7 @@ function createDeviceList {
 
     if [ ! -e ${DEVICE_LIST} ]; then
         if [ "${STORAGETYPE}" == "DS8K" ]; then
-            LUNLIST=($(cat 00_config_file | grep  "^declare -a SCSILUNS" | sed 's/declare -a SCSILUNS=//g;s/(//g;s/)//'))
+            LUNLIST=($(cat 00_config-file | grep  "^declare -a SCSILUNS" | sed 's/declare -a SCSILUNS=//g;s/(//g;s/)//'))
             for LUN in ${LUNLIST[@]}; do
                 STRING=$(echo ${LUN:4:2};echo ${LUN:8:2})
                 SUBSTRING=$(echo ${STRING//[[:space:]]}\))
