@@ -49,7 +49,7 @@ galaxy_info:
 
 dependencies:
   #- role: system-test
-  - { role: 'system-test', when: (run_system_test | bool) }
+  - { role: 'system-test', when: (run_system_test | default('false')| bool) }
   # - role: system-test
   #   when: run_system_test | bool
 
