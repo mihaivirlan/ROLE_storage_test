@@ -1,14 +1,19 @@
 #!/bin/bash
 # Script-Name: 80_Cleanup.sh
 # Owner: Thorsten Diehl
-# Date: 04.02.2021
+# Date: 08.02.2021
 # Description:  Perform a cleanup
 #
 # SCSI:
 # If parameter --cleanup_lvm is given, the entire LVM and all partitions are removed
 # Be aware: the existing deviceList.txt is being considered!
+#
 # DASD & EDEV:
-# t.b.d.
+# 08.02.2021 Thomas Lambart
+# All mounted filesystem at $MOUNT_DIR will be unmounted and
+# all DASDs who belong to then will be disabled.
+#
+#
 #
 
 DEBUG=yes
@@ -21,8 +26,9 @@ source ${TESTLIBDIR}lib/common/results.sh || exit 1
 source ${TESTLIBDIR}lib/common/remote.sh || exit 1
 source ${TESTLIBDIR}lib/toybox/common/libcommon.sh || exit 1
 source ${TESTLIBDIR}lib/toybox/storage/libscsi.sh || exit 1
+source ${TESTLIBDIR}lib/toybox/storage/libdasd.sh || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
-source ${TESTLIBDIR}00_config-file 
+source ${TESTLIBDIR}00_config-file
 
 # the variable MOUNT_DIR is expected to be set in the <ATC>.yml file
 
@@ -38,23 +44,21 @@ start_section 0 "Cleaning up test system"
         shift
     done
 
-# unmount filesystems first
-
-start_section 1 "Unmounting filesystems"
-    echo "$0 is running with"
-    echo "MOUNT_DIR  = $MOUNT_DIR"
-    echo " "
-    if [ "$MOUNT_DIR" != "" ]; then
-        unmountFilesystem
-    else
+    if [ "$MOUNT_DIR" == "" ]; then
         echo "No valid mount directory determined, exiting..."
         exit 1;
     fi
-end_section 1
 
 start_section 1 "Deactivating disks"
+    if [ "$MOUNT_DIR" == "/mnt1" ]; then  # path for SCSI LUNs
+        # unmount filesystems first
+        start_section 2 "Unmounting filesystems"
+            echo "$0 is running with"
+            echo "MOUNT_DIR  = $MOUNT_DIR"
+            echo " "
+            unmountFilesystem
+        end_section 2
 
-    if [ "$MOUNT_DIR" == "/mnt1" ]; then  # path for SCSI LUNs 
         # determine if LVM is used
         if [ "${CLEANUP_LVM}" == "TRUE" ] && [ "${LVM}" == "TRUE" ]; then
             start_section 2 "Removing logical volumes"
@@ -107,9 +111,27 @@ start_section 1 "Deactivating disks"
             done
         end_section 2
     fi
-    
+
     if [ "$MOUNT_DIR" == "/mnt2" ] || [ "$MOUNT_DIR" == "/mnt3" ]; then  # path for DASDs and EDEVs
-        echo "Thomas, hier gibt's noch was zu tun!"
+
+        # get devices from /proc/mounts and $MOUNT_DIR
+        DEVs=$(cat  /proc/mounts  |grep $MOUNT_DIR  |awk -F'/' ' { print $3 }' |tr -d [1-9] |sort -u)
+
+        start_section 2 "Unmounting filesystems"
+            echo "$0 is running with"
+            echo "MOUNT_DIR  = $MOUNT_DIR"
+            echo " "
+            unmountFilesystem
+        end_section 2
+
+        start_section 2 "disable DASDs"
+          for I in $DEVs; do
+            DASD=`lsdasd  |grep $I |awk ' {print $1}'`
+            echo "disable $DASD  /dev/${I}"
+            dasd::disable $DASD
+          done
+        end_section 2
+
     fi
   end_section 1
 show_test_results
