@@ -21,6 +21,7 @@
 # update Thomas Lambart 12. Feb 2020 for polatis switch
 # update TDI 30.03.2020 supported ficon switches added
 # big redesign TDI 04.06.2020 to run script locally for more bullet-proof execution
+# update TDI 08.02.2021 directory for logfiles now in $(pwd)/log instead of hardcoded /root/log
 
 
 # Load testlib
@@ -335,7 +336,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
 
     fi
 
-    cp -p $logfile /root/log
+    cp -p $logfile $(pwd)/log
     echo "" 
     echo "Kernel messages from dmesg:"
     dmesg -c | egrep -C1000 -i "$REGEX_KERNEL_PROBLEMS"
