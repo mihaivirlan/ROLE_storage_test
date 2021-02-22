@@ -34,7 +34,7 @@ STORAGETYPE=V7K
 # 3.) Define Storage Ports on V7000:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a STORAGEPORTS=(0x500507680b25c449 0x500507680b27c448 0x500507680b26c449 0x500507680b28c448)
+declare -a STORAGEPORTS=(0x500507680b25c449 0x500507680b26c449 0x500507680b27c448 0x500507680b28c448)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 4.) Define SCSI LUNs on V7000:     
