@@ -9,6 +9,8 @@
 # Be aware: the existing deviceList.txt is being considered!
 #
 # DASD & EDEV:
+# 26.02.2021 Thomas Lambart
+# disabling the DASDs and aliassses who are given in the ${TESTLIBDIR}DASD.conf
 # 08.02.2021 Thomas Lambart
 # All mounted filesystem at $MOUNT_DIR will be unmounted and
 # all DASDs who belong to then will be disabled.
@@ -114,8 +116,12 @@ start_section 1 "Deactivating disks"
 
     if [ "$MOUNT_DIR" == "/mnt2" ] || [ "$MOUNT_DIR" == "/mnt3" ]; then  # path for DASDs and EDEVs
 
-        # get devices from /proc/mounts and $MOUNT_DIR
-        DEVs=$(cat  /proc/mounts  |grep $MOUNT_DIR  |awk -F'/' ' { print $3 }' |tr -d [1-9] |sort -u)
+        # source the DASD.conf
+        if [[ -r ${TESTLIBDIR}/DASD.conf ]]; then
+          source ${TESTLIBDIR}/DASD.conf
+        else
+          echo "the DASD config file \"${TESTLIBDIR}/DASD.conf\" is not readable or dose not exist!"
+        fi
 
         start_section 2 "Unmounting filesystems"
             echo "$0 is running with"
@@ -124,12 +130,35 @@ start_section 1 "Deactivating disks"
             unmountFilesystem
         end_section 2
 
+        start_section 2 "disable DASD aliasse"
+            if [[ -n $DASD_ali ]]; then
+              echo "disable aliassses $DASD_ali"
+              dasd::disable $DASD_ali
+            else
+                echo "variable \"DASD_ali\" is not defined"
+            fi
+        end_section 2
+
         start_section 2 "disable DASDs"
-          for I in $DEVs; do
-            DASD=`lsdasd  |grep $I |awk ' {print $1}'`
-            echo "disable $DASD  /dev/${I}"
-            dasd::disable $DASD
-          done
+          if [[ -n $DASDs ]]; then
+            for DASD in $DASDs; do
+              echo "disable $DASD"
+              dasd::disable $DASD
+            done
+          else
+            echo "variable \"DASDs\" is not defined"
+            echo "check ${TESTLIBDIR}DASD.conf"
+          fi
+        end_section 2
+
+        start_section 2 "clean up ${TESTLIBDIR}DASD.conf"
+        if [[ -e ${TESTLIBDIR}DASD.conf ]]; then
+          echo "rm -f ${TESTLIBDIR}DASD.conf"
+          rm -f ${TESTLIBDIR}DASD.conf
+        else
+          echo "the DASD config file \"${TESTLIBDIR}DASD.conf\" dose not exist!"
+        fi
+
         end_section 2
 
     fi

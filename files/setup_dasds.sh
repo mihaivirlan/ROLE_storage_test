@@ -7,6 +7,7 @@
 # Description:
 #  This script
 #  - enables the given DASDs,
+#  - enables the given DASD-aliasse
 #  - creates one or two (if the cylinder count >65520, EAV) partitions on the DASDs
 #  - make the given file system on the partitions (ext2-4, xfs)
 #  - mount the filesystems at $MOUNT_DIR which an environment variable is, or
@@ -23,7 +24,8 @@
 #
 #
 # parameter:
-#    e.g.: setup_dasds.sh -d "c667:ext3,c6a7:ext4,c6c7:xfs" -c "38,39" -m /mnt2
+#    e.g.: setup_dasds.sh -a "c6e0-c6e3" -d "c667:ext3,c6a7:ext4,c6c7:xfs" -c "38,39" -m /mnt2
+#    -a [aliasse]
 #    -d [Bus-ID1:FS_type,Bus-ID2:FS_type,....,Bus-IDn:FS_type]
 #    -c for the CHPIDs is optional
 #    -m MOUNT_DIR is optional, could also be a global variable "$MOUNT_DIR"
@@ -46,6 +48,8 @@ TESTLIBDIR="${TESTLIBDIR:-$(dirname $0)/}"
 usage () {
   echo "usage: $0 -d \"[Bus-ID1:FS_type,Bus-ID2:FS_type,....,Bus-IDn:FS_type]\"  "
   echo "           e.g. \"c667:ext3,c6a7:ext4,c6c7:xfs\" "
+  echo " [-a \"aliasse\"]"
+  echo "           e.g. \"c6e0-c6e3\""
   echo " [-c  \"[CHPID1,CHPID2]\"] "
   echo "           e.g. -c \"38,39\" or -c \"3a,3b\" "
   echo " [-m  \"[MOUNT_DIR\"] "
@@ -53,7 +57,7 @@ usage () {
   echo ""
   echo "e.g.: $0 -d \"c667:ext3,c6a7:ext4,c6c7:xfs\" -c \"38,39\" "
   echo "      -c for the CHPIDs is optional"
-  echo "      -m MOUNT_DIR is optional, could also be a global variable \"\$MOUNT_DIR\""
+  echo "      -m MOUNT_DIR is optional, must be set at least as a global variable \"\$MOUNT_DIR\""
   echo ""
 
 }
@@ -65,6 +69,7 @@ start_section 1 "Start of the parameter parsing"
 
     while [ $# -gt 0 ]; do
             case "$1" in
+                    "-a"|"--aliasse")        DASD_ali="$2"; shift; ;;
                     "-d"|"--devices")        DASD_fs="$2"; shift; ;;
                     "-c"|"--chpid")          CHPIDs="$2"; shift; ;;
                     "-m"|"--mountdir")        MOUNT_DIR="$2"; shift; ;;
@@ -81,6 +86,7 @@ start_section 1 "Start of the parameter parsing"
     done
     echo ""
     echo "Script settings:"
+    echo "-a    aliasse                 = ${DASD_ali}"
     echo "-c    chpid                   = ${CHPIDs}"
     echo "-d    dasd devices(FS-type)   = ${DASD_fs}"
     echo "-m    MOUNT_DIR               =  $MOUNT_DIR"
@@ -96,25 +102,51 @@ start_section 1 "Start of the parameter parsing"
 
 end_section 1 "End of the parameter parsing"
 #------------------------------------------------------------------------------#
+start_section 1 "create the config file"
+  echo "# `date` " > ${TESTLIBDIR}/DASD.conf
+end_section 1
+
+#------------------------------------------------------------------------------#
 # check/configure if chp-id are configured
 start_section 1 "check/configure if chp-id are configured"
-if [[ -n ${CHPIDs} ]]; then
-    for I in ${CHPIDs//,/ };do
-      Cfg=`lschp |grep ^0.${I} |awk ' {print $3}'`
-      if [[ ${Cfg} -eq 0 ]]; then
-        chchp -c 1 ${I}
-      fi
-    done
-fi
+  if [[ -n ${CHPIDs} ]]; then
+      for I in ${CHPIDs//,/ };do
+        Cfg=`lschp |grep ^0.${I} |awk ' {print $3}'`
+        if [[ ${Cfg} -eq 0 ]]; then
+          chchp -c 1 ${I}
+        fi
+      done
+  fi
 end_section 1
+
 #------------------------------------------------------------------------------#
 #enable the dasd
 start_section 1 "enable the dasd"
-for I in ${DASD_fs//,/ };do               # c667:ext3
-  DASD=${I%:*}
+  # for I in ${DASD_fs//,/ };do               # c667:ext3
+  for DASD in ${DASDs};do
     dasd::enable 0.0.${DASD}
-done
+    # check the dasd
+    lsdasd -c ${DASD} > /dev/null
+    if [[ $? -ne 0 ]] ;then
+       echo "error while enabling DASD ${DASD}"
+       end_section 1
+      exit 1
+    fi
+  done
+  if [[ -n ${DASDs} ]]; then
+    echo "DASDs=\"${DASDs}\"" >> ${TESTLIBDIR}/DASD.conf
+  fi
+
 end_section 1
+#------------------------------------------------------------------------------#
+# enable DASD aliasse
+start_section 1 "enable DASD aliasse"
+  if [[ -n ${DASD_ali} ]]; then
+      dasd::enable ${DASD_ali}
+      echo "DASD_ali=${DASD_ali}" >> ${TESTLIBDIR}/DASD.conf
+  fi
+end_section 1
+
 #------------------------------------------------------------------------------#
 start_section 1 "make the partitions and file systems"
 for I in ${DASD_fs//,/ }; do
