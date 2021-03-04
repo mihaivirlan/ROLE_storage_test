@@ -1,8 +1,8 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K28_t35lp34
+# Script-Name: 00_config-file = config-file_SCSI_basic_fio_LVM_DS8K28_z15ssi19
 # Owner: Thorsten Diehl
-# Date: 06.09.2019
-# Description: Config-file for SCSI_cablepull_fio
+# Date: 04.03.2021
+# Description: Config-file for SCSI_basic_fio
 #
 #
 #################################################
@@ -12,16 +12,16 @@
 # 341      59       1840     DS8K28
 
 #################################################
-# T35 connection for ERROR INJECTION
+# T83 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
-# 360      5A       1880     DS8K28
-# 361      5B       18C0     DS8K28
+# 28C      58       1800     DS8K28
+# 28D      59       1840     DS8K28
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for T35LP34 
+# 1.) Define DEVNOs for Z15SSI19 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.1880 0.0.18c0) # error recovery
+declare -a ZFCPADAPTOR=(0.0.1809 0.0.1849) # good path
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
@@ -33,7 +33,7 @@ STORAGETYPE=DS8K
 # 3.) Define Storage Ports on DS8K28:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a STORAGEPORTS=(0x500507630319d327 0x50050763031bd327)
+declare -a STORAGEPORTS=(0x500507630309d327 0x50050763030bd327)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 4.) Define SCSI LUNs on DS8K28:    
