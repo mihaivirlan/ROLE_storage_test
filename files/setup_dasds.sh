@@ -155,27 +155,38 @@ for I in ${DASD_fs//,/ }; do
   dev_name=`lsdasd -s ${DASD} |grep ${DASD} | awk ' { print $3 }'`
   dasd_type=`lsdasd -s ${DASD} |grep ${DASD} | awk ' { print $5 }'`
   # check DASD-format and type
-  if [[ $(storage::getDASDFormatLayout /dev/${dev_name}) != CDL  && $dasd_type == "ECKD" ]]; then
-    echo "${DASD} (/dev/${dev_name} have DASD-type=ECKD no CDL-Format and will be formatted)"
+  if [[ $(storage::getDASDFormatLayout /dev/${dev_name}) == "NOT" && $dasd_type == "ECKD" ]]; then
+    echo "unformatted DASD ${DASD} (/dev/${dev_name}) will now be formatted)"
     storage::DASDFormat -d /dev/${dev_name}
   fi
 
+#------------------------------------------------------------------------------#
+# create partitions; overwrite everything
+  case "$(storage::getDASDFormatLayout /dev/${dev_name})" in
+      CDL)
+          # get number of cylinders
+          CYLINDERS=`parted -s /dev/${dev_name} -- unit cyl print |grep /dev/${dev_name} |cut -f2 -d':'`;
+          if [[ ${CYLINDERS%cyl} -gt 524122 ]]; then
+            ## if more then 524122 cyl then we have an "EAV DASD" and will create two partitions
+            echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%\"";
+            storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%" 2>&1;
+          else 
+            ## normal DASD; one partition only
+            echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 100%\"";
+            storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 100%"  2>&1;
+          fi
+          ;;
+      LDL)
+          echo "storage::mkpart \"/dev/${dev_name}:gpt:ext3 0% 100%\"";
+          storage::mkpart "/dev/${dev_name}:gpt:ext3 0% 100%"  2>&1;
+          ;;
+      *)
+          echo "unexpected error; DASD format type unknown";
+          return 1;
+          ;;
+  esac;
 
-  if [[ ! $(ls -1 /dev/${dev_name}[1-9]) ]]; then
-    ##   no partition available
-    # get count cylinders
-    CYLINDERS=`parted -s /dev/${dev_name} -- unit cyl print |grep /dev/${dev_name} |cut -f2 -d':'`
-    if [[ ${CYLINDERS%cyl} > 65520 ]]; then
-      ## if more then 65520 cyl then we have a  "eav DASD" and then 2 partition else 1 partition
-      echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%\""
-      storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%" 2>&1
-    else
-      echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 100%\""
-      storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 100%"  2>&1
-    fi
-  fi
-
-  echo "make the file systems, wait 3sec.for the partitons"
+  echo "make the file systems, wait 3 sec.for the partitions"
   sleep 3
   for DEVs in `ls -1 /dev/${dev_name}[1-9]`; do
     if [[ ${FS_t} = ext[2-4] ]]; then
