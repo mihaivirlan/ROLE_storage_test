@@ -1,8 +1,8 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t35lp33
+# Script-Name: 00_config-file = config-file_SCSI_basic_fio_LVM_DS8K31_t35lp32
 # Owner: Thorsten Diehl
 # Date: 13.02.2020
-# Description: Config-file for SCSI_cablepull_fio
+# Description: Config-file for SCSI_basic_fio
 #
 #
 #################################################
@@ -18,10 +18,10 @@
 # 361      5B       18C0     DS8K31
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for T35LP33 
+# 1.) Define DEVNOs for T35LP32 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.1880 0.0.18c0) # error recovery
+declare -a ZFCPADAPTOR=(0.0.1800 0.0.1840) # good path
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
@@ -33,13 +33,13 @@ STORAGETYPE=DS8K
 # 3.) Define Storage Ports on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a STORAGEPORTS=(0x500507630908d430 0x50050763090cd430)
+declare -a STORAGEPORTS=(0x500507630900d430 0x500507630904d430)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 4.) Define SCSI LUNs on DS8K31:    
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a SCSILUNS=(0x401440b000000000 0x401440b100000000 0x401440b800000000 0x401440b900000000 0x401440ba00000000 0x401440bb00000000 0x401440bc00000000 0x401440bd00000000 0x401440be00000000 0x401440bf00000000 0x401440b200000000 0x401440b300000000 0x401440b400000000 0x401440b500000000 0x401440b600000000 0x401440b700000000)
+declare -a SCSILUNS=(0x4014401000000000 0x4014401100000000 0x4014401800000000 0x4014401900000000 0x4014401a00000000 0x4014401b00000000 0x4014401c00000000 0x4014401d00000000 0x4014401e00000000 0x4014401f00000000 0x4014401200000000 0x4014401300000000 0x4014401400000000 0x4014401500000000 0x4014401600000000 0x4014401700000000)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 5.) LVM Configuration:
