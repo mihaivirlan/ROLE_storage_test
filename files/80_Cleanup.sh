@@ -48,6 +48,10 @@ start_section 0 "Cleaning up test system"
 
     if [ "$MOUNT_DIR" == "" ]; then
         echo "No valid mount directory determined, exiting..."
+        echo "Try export MOUNT_DIR=/mntX."
+        echo "     with X=1 for SCSI-disks"
+        echo "     with X=2 for DASD-disks"
+        echo "     with X=3 for EDEV-disks"
         exit 1;
     fi
 
