@@ -30,7 +30,7 @@ source ${TESTLIBDIR}lib/toybox/common/libcommon.sh || exit 1
 source ${TESTLIBDIR}lib/toybox/storage/libscsi.sh || exit 1
 source ${TESTLIBDIR}lib/toybox/storage/libdasd.sh || exit 1
 source ${TESTLIBDIR}functions.sh || exit 1
-source ${TESTLIBDIR}00_config-file
+[[ -r ${TESTLIBDIR}00_config-file ]] && source ${TESTLIBDIR}00_config-file
 
 # the variable MOUNT_DIR is expected to be set in the <ATC>.yml file
 
@@ -42,12 +42,19 @@ start_section 0 "Cleaning up test system"
             --cleanup_lvm )
                 CLEANUP_LVM=TRUE
                 ;;
+            "-m"|"--mountdir")        MOUNT_DIR="$2"; shift; ;;
         esac
         shift
     done
 
     if [ "$MOUNT_DIR" == "" ]; then
         echo "No valid mount directory determined, exiting..."
+        echo "Try export MOUNT_DIR=/mntX"
+        echo "     with X=1 for SCSI-disks"
+        echo "     with X=2 for DASD-disks"
+        echo "or"
+        echo "     use  '-m {MOUNT_DIR}'"
+        echo " "
         exit 1;
     fi
 
