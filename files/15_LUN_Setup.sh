@@ -20,7 +20,23 @@ source ${TESTLIBDIR}variables.sh || exit 1
 
 start_section 0 "Preparing Testsystem"
 
-    start_section 1 "Check for multipath devices that are already in use"
+      start_section 1 "Check/configure for CHPID"
+        if [[ -n ${CHPIDs} ]]; then
+            for I in ${CHPIDs[@]};do
+              Cfg=`lschp |grep ^0.${I} |awk ' {print $3}'`
+              if [[ ${Cfg} -eq 0 ]]; then
+                 echo "CHPID $I is in stand-by and will be configure  "
+                 assert_exec 0 " chchp -c 1 ${I}"
+              else
+                assert_warn 0 0 "CHPID $I is configured"
+              fi
+            done
+        else
+           assert_warn 0 0 "CHPIDs are not declared in ${TESTLIBDIR}00_config-file, please enable the CHPIDs manually"
+        fi
+      end_section 1
+
+      start_section 1 "Check for multipath devices that are already in use"
 
         echo "Determine initial number of already avilable multipath devices"
         INITIALMULTIPATHDEVICES=$(multipathd show topo | grep IBM | wc -l)
