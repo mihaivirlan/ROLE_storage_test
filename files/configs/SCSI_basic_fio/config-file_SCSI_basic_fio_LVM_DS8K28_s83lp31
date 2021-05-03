@@ -5,6 +5,11 @@
 # Description: Config-file for SCSI_basic_fio
 #
 #
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs 
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+declare -a CHPIDs=(58 59) # good path
+# declare -a CHPIDs=(5a 5b) # ERROR INJECTION
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs and remote ports (DS8K28) for error injection 

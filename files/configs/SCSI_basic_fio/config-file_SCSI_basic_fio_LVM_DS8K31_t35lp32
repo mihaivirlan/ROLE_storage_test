@@ -5,6 +5,9 @@
 # Description: Config-file for SCSI_basic_fio
 #
 #
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs 
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 #################################################
 # T35 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
@@ -16,6 +19,9 @@
 # PCHID    CHPID    DEVNO    STORAGE SERVER
 # 360      5A       1880     DS8K31
 # 361      5B       18C0     DS8K31
+
+declare -a CHPIDs=(58 59) # good path
+# declare -a CHPIDs=(5a 5b) # ERROR INJECTION
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs for T35LP32 

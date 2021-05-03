@@ -5,6 +5,9 @@
 # Description: Config-file for SCSI_basic_fio
 #
 #
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs 
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 #################################################
 # M83 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
@@ -16,6 +19,9 @@
 # PCHID    CHPID    DEVNO    STORAGE SERVER 
 # 268      69       5080     V7K06
 # 269      6A       50C0     V7K06
+
+declare -a CHPIDs=(67 68) # good path
+# declare -a CHPIDs=(69 6a # ERROR INJECTION
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs for M83LP31:
