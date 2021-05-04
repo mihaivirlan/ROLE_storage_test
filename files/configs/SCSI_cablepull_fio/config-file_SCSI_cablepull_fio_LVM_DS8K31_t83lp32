@@ -5,6 +5,9 @@
 # Description: Config-file for SCSI_cablepull_fio
 #
 #
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs 
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 #################################################
 # T83 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
@@ -16,6 +19,10 @@
 # PCHID    CHPID    DEVNO    STORAGE SERVER
 # 2AC      5A       1880     DS8K31
 # 2AD      5B       18C0     DS8K31
+
+#declare -a CHPIDs=(58 59) # good path
+ declare -a CHPIDs=(5a 5b) # ERROR INJECTION
+
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs for T83LP32 

@@ -6,6 +6,9 @@
 #
 #
 #
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs 
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 #################################################
 # T83 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
@@ -14,10 +17,12 @@
 
 #################################################
 # T83 connection for ERROR INJECTION
-# PCHID    CHPID    DEVNO    STORAGE SERVER 
+# PCHID    CHPID    DEVNO    STORAGE SERVER
 # 2BC      6A       5080     V7K06
 # 2BD      6B       50C0     V7K06
 
+#declare -a CHPIDs=(68 69) # good path
+declare -a CHPIDs=(6a 6b) # ERROR INJECTION
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs for T83LP31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
@@ -37,7 +42,7 @@ STORAGETYPE=V7K
 declare -a STORAGEPORTS=(0x500507680b25c449 0x500507680b26c449 0x500507680b27c448 0x500507680b28c448)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 4.) Define SCSI LUNs on V7000:     
+# 4.) Define SCSI LUNs on V7000:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
 declare -a SCSILUNS=(0x0020000000000000 0x0021000000000000 0x0022000000000000 0x0023000000000000 0x0024000000000000 0x0025000000000000 0x0026000000000000 0x0027000000000000 0x0028000000000000 0x0029000000000000 0x002a000000000000 0x002b000000000000 0x002c000000000000 0x002d000000000000 0x002e000000000000 0x002f000000000000)
@@ -53,7 +58,7 @@ if [ "${LVM}" == "TRUE" ]; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume1 
+# function createLogicalVolume1
 # Creates a striped logical volume with 2 stripes, a stripesize of 8KB and a size of 1500MB
 # e.g. lvcreate -i 3 -I 8 -L 100M vg00
 # - - - - - - - - - - - - - - - - - - - - -
@@ -63,9 +68,9 @@ LVNAME1=LV1
 STRIPES1=2
 STRIPESIZE1=8
 LVSIZE1=1500MB
-   
+
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume2 
+# function createLogicalVolume2
 # Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 3
 # devices (or option --alloc anywhere) - two for the mirror devices and one for the disk log.
 # e.g.  lvcreate -m1 -L 500M vg0
@@ -77,7 +82,7 @@ MIRRORS=1
 LVSIZE2=1500MB
 
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume3 
+# function createLogicalVolume3
 # Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 2
 # devices - the log is "in-memory"
 # e.g. lvcreate -m1 --mirrorlog core -L 500M vg00
@@ -89,7 +94,7 @@ MIRRORS=1
 LVSIZE3=1500MB
 
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume4 
+# function createLogicalVolume4
 # Creates a linear logical volume
 # e.g  lvcreate -L 64M -n lvol1 vg00 /dev/sda:0-7 /dev/sdb:0-7
 # - - - - - - - - - - - - - - - - - - - - -
@@ -99,7 +104,7 @@ LVNAME4=LV4
 LVSIZE4=1500MB
 
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume5 
+# function createLogicalVolume5
 # Creates a 2GiB RAID5 logical volume, with 3 stripes (plus a parity drive for a total of 4 devices)
 # and a stripesize of 64KiB
 # e.g.  lvcreate --type raid5 -L 5G -i 3 -I 64 -n my_lv vg00
@@ -110,4 +115,3 @@ LVNAME5=LV5
 STRIPES5=3
 STRIPESIZE5=64
 LVSIZE5=2G
-
