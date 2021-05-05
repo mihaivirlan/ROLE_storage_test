@@ -6,6 +6,9 @@
 #
 #
 #
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs 
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 #################################################
 # S83 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
@@ -17,6 +20,9 @@
 # PCHID    CHPID    DEVNO    STORAGE SERVER 
 # 25C      69       5080     V7K06
 # 25D      6A       50C0     V7K06
+
+declare -a CHPIDs=(67 68) # good path
+# declare -a CHPIDs=(69	6a # ERROR INJECTION
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs for S83LP31:

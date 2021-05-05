@@ -6,6 +6,9 @@
 #
 #
 #
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs 
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 #################################################
 # T35 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
@@ -18,6 +21,8 @@
 # 328      6a       5080     V7K06
 # 329      6b       50C0     V7K06
 
+#declare -a CHPIDs=(68 69) # good path
+declare -a CHPIDs=(6a 6b) # ERROR INJECTION
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs for T35LP32:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
