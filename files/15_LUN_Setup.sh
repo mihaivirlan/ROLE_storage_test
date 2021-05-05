@@ -23,16 +23,16 @@ start_section 0 "Preparing Testsystem"
       start_section 1 "Check/configure for CHPID"
         if [[ -n ${CHPIDs} ]]; then
             for I in ${CHPIDs[@]};do
-              Cfg=`lschp |grep ^0.${I} |awk ' {print $3}'`
+              Cfg=$(lschp |grep ^0.${I} |awk ' {print $3}')
               if [[ ${Cfg} -eq 0 ]]; then
-                 echo "CHPID $I is in stand-by and will be configure  "
-                 assert_exec 0 " chchp -c 1 ${I}"
+                 echo "CHPID $I is in stand-by and will be configured online now"
+                 assert_exec 0 "chchp -c 1 ${I}"
               else
-                assert_warn 0 0 "CHPID $I is configured"
+                assert_warn 0 0 "CHPID $I is already online"
               fi
             done
         else
-           assert_warn 0 0 "CHPIDs are not declared in ${TESTLIBDIR}00_config-file, please enable the CHPIDs manually"
+           assert_warn 0 0 "CHPIDs are not declared in ${TESTLIBDIR}00_config-file,\nplease ensure that the required CHPIDs are online"
         fi
       end_section 1
 
