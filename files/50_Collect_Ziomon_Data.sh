@@ -55,6 +55,6 @@ start_section 0 "Collect ziomon data for all multipath devices"
         assert_warn 0 0 "ZIOMON disabled by user - option \"-r\" set to \"No\""
 
     else
-        assert_fail 1 0 "ZIOMON stoped, no valid value for \"-r\" option"
+        assert_fail 1 0 "ZIOMON stopped, no valid value for \"-r\" option"
     fi
 end_section 0
