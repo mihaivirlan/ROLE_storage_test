@@ -1,10 +1,12 @@
-#!/bin/bash  
+#!/bin/bash
 # Script-Name: 50_Collect_Ziomon_Data.sh
 # Owner: Thorsten Diehl
 # Date: 13.12.2016
 # Description:  Collect ziomon data
 #
-# Load testlib 
+# 07. May 21: TL changes for $RUN   "... elif...else... fi"
+#
+# Load testlib
 TESTLIBDIR="${TESTLIBDIR:-$(dirname $0)/}"
 source ${TESTLIBDIR}lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}lib/common/results.sh || exit 1
@@ -31,10 +33,10 @@ start_section 0 "Collect ziomon data for all multipath devices"
     echo "-o: Basename for output files = ${DATAFILE}"
     echo "-r: Run script YES/No = ${RUN}"
     echo ""
-    
+
     RUN=$(echo ${RUN} | tr [a-z] [A-Z])
     if [ "${RUN}" == "YES" ]; then
-        
+
         start_section 1 "mount debugfs"
             umount /sys/kernel/debug > /dev/null 2>&1
             ls /sys/kernel/debug >> /dev/null 2>&1
@@ -43,13 +45,16 @@ start_section 0 "Collect ziomon data for all multipath devices"
             mount none -t debugfs /sys/kernel/debug >> /dev/null 2>&1
             mount | grep debugfs >> /dev/null 2>&1
         end_section 1
-        
+
         DEVICELIST=$(ls /dev/mapper/ | grep mpath | grep -v "[1-9]$\|p[1-9]\|-p[1-9]\|-part[1-9]\|_part[1-9]" | sed s'/mpath/\/dev\/mapper\/mpath/'g)
         echo "ziomon -d ${DURATION} -i ${INTERVALL_LENGTH} -l ${LIMIT} -o ${DATAFILE}  ${DEVICELIST}"
         ziomon -d ${DURATION} -i ${INTERVALL_LENGTH} -l ${LIMIT} -o ${DATAFILE}  ${DEVICELIST}
         assert_fail $? 0 "PASSED if ziomon could collect data"
+
+    elif [ "${RUN}" == "NO" ]; then
+        assert_warn 0 0 "ZIOMON disabled by user - option \"-r\" set to \"No\""
+
     else
-        assert_warn 0 0 "ZIOMON disabled by user - option \"-r\" not set to \"yes\""
+        assert_fail 1 0 "ZIOMON stoped, no valid value for \"-r\" option"
     fi
 end_section 0
-
