@@ -22,3 +22,14 @@
     path: "/usr/local/tp4/default/lib/storage"
     src: "{{ script_dir }}"
     state: link
+
+- block:
+  - name: Update apt directory
+    command: "apt update"
+  - name: Install lsscsi
+    command: >-
+      apt-get -y install lsscsi
+    args:
+      warn: false
+  when:
+    - ansible_distribution == 'Ubuntu'
