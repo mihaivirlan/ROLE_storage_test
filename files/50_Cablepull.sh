@@ -2,7 +2,7 @@
 
 ########################
 # This script handles an automated switch port toggling (Brocade)
-# or an automated cable pull (Polatis) and determines, which 
+# or an automated cable pull (Polatis) and determines, which
 # mechanism has to be used.
 #
 # Brocade:
@@ -119,15 +119,15 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
     switch=`echo ${SWITCH}|awk '{print tolower($0)}'`
     case $switch in
         fcsw32_ficon|fcsw42_fcp|fcsw39_ficon|fcsw49_fcp) switch_type="brocade";;
-        10.30.222.13[8,9])                               switch_type="polatis";;
+        10.30.222.13[7,8,9])                             switch_type="polatis";;
         *)                           echo "Unsupported switch!"
                                      echo "Supperted switches are:"
-                                     echo "fcsw32_ficon, fcsw42_fcp, fcsw39_ficon, fcsw49_fcp," 
-                                     echo "polatis (10.30.222.138,10.30.222.139)"
+                                     echo "fcsw32_ficon, fcsw42_fcp, fcsw39_ficon, fcsw49_fcp,"
+                                     echo "polatis (10.30.222.137, 10.30.222.138, 10.30.222.139)"
                                      exit 1;;
     esac
 
-    # computing maximum expected runtime, which is required as value 
+    # computing maximum expected runtime, which is required as value
     # for concurrent:createLock expiration time (in seconds), just in
     # case something breaks and the script does not release the lock
     etime=$(( $(echo $PORTS |awk -F "," '{print NF}')*$(( $(($TIME_OFF>0?$TIME_OFF:120)) + $(($TIME_ON>0?$TIME_ON:120)) +20 ))*$CYCLES ))
@@ -170,7 +170,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     exit 1
                 fi
             done
-            
+
             Z=0
             while [ $Z -lt $CYCLES ]; do
                 Z=$[Z+1]
@@ -197,7 +197,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     fi
                     echo "sleeping for $toff sec..."
                     sleep $toff
-                    
+
                     # switching selected port on
                     if [ "$TIME_ON" == "random" ]; then
                         ton=$(($RANDOM %90 + 30 ))
@@ -228,11 +228,12 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
 
     # section for polatis switch
     if [ "$switch_type" = "polatis" ]; then
-        WDIR="./cablepull/polatis"
+        WDIR="./cablepull"
         PORTSTAT=${WDIR}/connections/portStates_$$.out
         NOT_ALLOW=${WDIR}/connections/not_allow.out
         lockdir=polatis.${SWITCH}-${PORTS}.lock
         logfile=POLATIS-`date +%Y-%m-%d_%H.%M.%S`-`hostname`.log
+
         touch $logfile
         exec > >(tee $logfile) 2>&1
 
@@ -256,9 +257,9 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
             # save the switch config
             mkdir -p ${WDIR}/connections
             DATE=$(date +%Y%m%d_%H%M%S)
-            python2 ${WDIR}/export_connections.py --host ${IP} --username ${USERID} --password ${PASSWD} --filename ${WDIR}/connections/all_connections_${SWITCH}_${DATE}
-            ./cablepull/pol_port_status.sh -h ${IP} -u ${USERID} -p ${PASSWD} -P ${PORTS}  > ${WDIR}/connections/portStates_${PORTS//,/_}_${SWITCH}_${DATE}.out 
-            ./cablepull/pol_port_status.sh -h ${IP} -u ${USERID} -p ${PASSWD} -P ${PORTS}  > ${PORTSTAT}
+            ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch:::123:;" > ${WDIR}/connections/all_connections_${SWITCH}_${DATE}
+            ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch::${PORTS//,/&}:123:;" > ${WDIR}/connections/portStates_${PORTS//,/_}_${SWITCH}_${DATE}.out
+            ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch::${PORTS//,/&}:123:;" |grep "\"" > ${PORTSTAT}
 
             # now do the cable pulls
             PORTS=$(echo $PORTS|tr ',' ' ')  # removing the delimiting commas
@@ -280,8 +281,8 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                         toff=$TIME_OFF
                     fi
                     echo "++++ disconnect port ${PORT} ++++ "
-                    echo "./pol_port_delete.sh -h ${IP} -u ${USERID} -p ${PASSWD} -P ${PORT}"
-                    ./cablepull/pol_port_delete.sh -h ${IP} -u ${USERID} -p ${PASSWD} -P ${PORT}  #  2>/dev/null
+                    echo "${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c \"DLT-PATCH::${PORT}:123:;\""
+                   ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "DLT-PATCH::${PORT}:123:;"
                     rc=$?
                     if [ $rc -gt 0 ]; then
                         echo "Warning! Port $PORT on $IP could not be switched off!"
@@ -290,7 +291,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     fi
                     echo -e "sleeping for $toff sec...\n"
                     sleep $toff
-                    
+
                     # switching selected port on
                     if [ "$TIME_ON" == "random" ]; then
                         ton=$(($RANDOM %90 + 30 ))
@@ -302,8 +303,8 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     IPORT=`grep  -w ${PORT} ${PORTSTAT} |tr  -d '"' |tr -d ' ' |cut -f1 -d, `
                     OPORT=`grep  -w ${PORT} ${PORTSTAT} |tr  -d '"' |tr -d ' ' |cut -f2 -d, `
                     echo -e "\n++++  re-establish cross connection for ports: ${IPORT},${OPORT} ++++\n"
-                    echo "./pol_port_create.sh -h ${IP} -u ${USERID} -p ${PASSWD} -i ${IPORT} -o ${OPORT}"
-                    ./cablepull/pol_port_create.sh -h ${IP} -u ${USERID} -p ${PASSWD} -i ${IPORT} -o ${OPORT}  # 2>/dev/null
+                    echo " ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c \"ENT-PATCH::${IPORT},${OPORT}:123:;\""
+                    ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "ENT-PATCH::${IPORT},${OPORT}:123:;"
                     rc=$?
                     if [ $rc -gt 0 ]; then
                         echo "Warning! Ports $IPORT and $OPORT on $IP could not be reconnected!"
@@ -312,7 +313,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                         assert_fail $rc 0 "Exiting here..."
                     fi
                     echo "done: cross connection to: "
-                    ./cablepull/pol_port_status.sh -h ${IP} -u ${USERID} -p ${PASSWD} -P ${IPORT}  #  2>/dev/null
+                    ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "RTRV-PATCH::${IPORT}:123:;" |grep '\"'
                     echo "sleeping for $ton sec..."
                     sleep $ton
                 done
@@ -337,7 +338,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
     fi
 
     cp -p $logfile $(pwd)/log
-    echo "" 
+    echo ""
     echo "Kernel messages from dmesg:"
     dmesg -c | egrep -C1000 -i "$REGEX_KERNEL_PROBLEMS"
-end_section 0 
+end_section 0
