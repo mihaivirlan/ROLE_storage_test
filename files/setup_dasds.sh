@@ -1,4 +1,4 @@
-#!/bin/bash
+-MD#!/bin/bash
 # set -x
 #-----------------------------------------------------------------------------
 # # Script-Name: setup_dasds.sh
@@ -6,7 +6,7 @@
 # Date: 14. Jan. 2021
 # Description:
 #  This script
-#  - enables the given DASDs,
+#  - enables the given DASDs,FBAs and MINIDISKs
 #  - enables the given DASD-aliasse
 #  - creates one or two (if the cylinder count >65520, EAV) partitions on the DASDs
 #  - make the given file system on the partitions (ext2-4, xfs)
@@ -26,6 +26,7 @@
 # parameter:
 #    e.g.: setup_dasds.sh -a "c6e0-c6e3" -d "c667:ext3,c6a7:ext4,c6c7:xfs" -c "38,39" -m /mnt2
 #    -a [aliasse]
+#    -MD [username:virt_addr1,username:virt_addr2,...,username:virt_addrn]
 #    -d [Bus-ID1:FS_type,Bus-ID2:FS_type,....,Bus-IDn:FS_type]
 #    -c for the CHPIDs is optional
 #    -m MOUNT_DIR is optional, could also be a global variable "$MOUNT_DIR"
@@ -50,6 +51,8 @@ usage () {
   echo "           e.g. \"c667:ext3,c6a7:ext4,c6c7:xfs\" "
   echo " [-a \"aliasse\"]"
   echo "           e.g. \"c6e0-c6e3\""
+  echo " [-MD \"[MDISKOWNER:virt_addr1,MDISKOWNER:virt_addr2,...,MDISKOWNER:virt_addrn]\" ]"
+  echo "           e.g  \"linmdisk:0201,linmdisk:0202,linmdisk:0203\" "
   echo " [-c  \"[CHPID1,CHPID2]\"] "
   echo "           e.g. -c \"38,39\" or -c \"3a,3b\" "
   echo " [-m  \"[MOUNT_DIR\"] "
@@ -69,9 +72,10 @@ start_section 1 "Start of the parameter parsing"
 
     while [ $# -gt 0 ]; do
             case "$1" in
-                    "-a"|"--aliasse")        DASD_ali="$2"; shift; ;;
-                    "-d"|"--devices")        DASD_fs="$2"; shift; ;;
-                    "-c"|"--chpid")          CHPIDs="$2"; shift; ;;
+                    "-a"|"--aliasse")         DASD_ali="$2"; shift; ;;
+                    "-d"|"--devices")         DASD_fs="$2"; shift; ;;
+                    "-c"|"--chpid")           CHPIDs="$2"; shift; ;;
+                    "-MD"|"--minidisk")       MINIDISK="$2"; shift; ;;
                     "-m"|"--mountdir")        MOUNT_DIR="$2"; shift; ;;
                     *)
                             echo "Unknown parameter: $1"; ;;
@@ -89,6 +93,7 @@ start_section 1 "Start of the parameter parsing"
     echo "-a    aliasse                 = ${DASD_ali}"
     echo "-c    chpid                   = ${CHPIDs}"
     echo "-d    dasd devices(FS-type)   = ${DASD_fs}"
+    echo "-MD   minidisk                = ${MINIDISK}"
     echo "-m    MOUNT_DIR               =  $MOUNT_DIR"
     echo ""
 
@@ -103,7 +108,9 @@ start_section 1 "Start of the parameter parsing"
 end_section 1 "End of the parameter parsing"
 #------------------------------------------------------------------------------#
 start_section 1 "create the config file"
+  # is needed for post scripts
   echo "# `date` " > ${TESTLIBDIR}/DASD.conf
+  assert_exec 0 "ls -l ${TESTLIBDIR}/DASD.conf"
 end_section 1
 
 #------------------------------------------------------------------------------#
@@ -118,6 +125,23 @@ start_section 1 "check/configure if chp-id are configured"
       done
   fi
 end_section 1
+
+#------------------------------------------------------------------------------#
+# enable MINIDISK
+start_section 1 "enable MINIDISK"
+
+  if [[ -n ${MINIDISK} ]]; then
+    for I in ${MINIDISK//,/ };do
+      MDISKOWNER=${I%:*}
+      DEVNO=${I##*:}
+      vmcp "LINK ${MDISKOWNER} ${DEVNO} ${DEVNO} W "
+      assert_fail $? 0 "LINK ${MDISKOWNER} ${DEVNO} ${DEVNO} W"
+    done
+
+  fi
+end_section 1
+
+
 
 #------------------------------------------------------------------------------#
 #enable the dasd
@@ -148,6 +172,14 @@ start_section 1 "enable DASD aliasse"
 end_section 1
 
 #------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+# echo "EXIT 99"
+# exit 99
+#------------------------------------------------------------------------------#
+
+
+
+
 start_section 1 "make the partitions and file systems"
 for I in ${DASD_fs//,/ }; do
   DASD=${I%:*}
@@ -170,7 +202,7 @@ for I in ${DASD_fs//,/ }; do
             ## if more then 524122 cyl then we have an "EAV DASD" and will create two partitions
             echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%\"";
             storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%" 2>&1;
-          else 
+          else
             ## normal DASD; one partition only
             echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 100%\"";
             storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 100%"  2>&1;
