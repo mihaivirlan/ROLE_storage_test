@@ -1,15 +1,10 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t83lp25
+# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t8330031_NPIV
 # Owner: Thomas Lambart
+# Date: 03.08.2021
+# Description: Config-file for SCSI_cablepull_fio_NPIV
 #
-# Date: 09.11.2020
-# Description: Config-file for SCSI_cablepull_fio
 #
-#
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 0.) Define CHPIDs
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-
 #################################################
 # T83 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
@@ -26,15 +21,12 @@
 # 2B9      67      17A0      DS8K31
 
 
-#declare -a CHPIDs=(58 59) # good path
-#declare -a CHPIDs=(66 67) # NPIV
- declare -a CHPIDs=(5a 5b) # ERROR INJECTION
-
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for T83LP25
+# 1.) Define DEVNOs for T8330033
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.1880 0.0.18c0) # error recovery
+declare -a ZFCPADAPTOR=(0.0.17A2 0.0.17C2) # error recovery
+# declare -a ZFCPADAPTOR=(0.0.189f 0.0.18df) # error recovery
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
@@ -52,7 +44,7 @@ declare -a STORAGEPORTS=(0x500507630918d430 0x50050763091cd430)
 # 4.) Define SCSI LUNs on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a SCSILUNS=(0x401440d000000000 0x401440d100000000 0x401440d800000000 0x401440d900000000 0x401440da00000000 0x401440db00000000 0x401440dc00000000 0x401440dd00000000 0x401440de00000000 0x401440df00000000 0x401440d200000000 0x401440d300000000 0x401440d400000000 0x401440d500000000 0x401440d600000000 0x401440d700000000)
+declare -a SCSILUNS=(0x401440c000000000 0x401440c100000000 0x401440c800000000 0x401440c900000000 0x401440ca00000000 0x401440cb00000000 0x401440cc00000000 0x401440cd00000000 0x401440ce00000000 0x401440cf00000000 0x401440c200000000 0x401440c300000000 0x401440c400000000 0x401440c500000000 0x401440c600000000 0x401440c700000000)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 5.) LVM Configuration:

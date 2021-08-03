@@ -1,9 +1,10 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t83lp25
+# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t83lp25_NPIV
+
 # Owner: Thomas Lambart
 #
-# Date: 09.11.2020
-# Description: Config-file for SCSI_cablepull_fio
+# Date: 03.08.2021
+# Description: Config-file for SCSI_cablepull_fio_NPIV
 #
 #
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
@@ -27,14 +28,14 @@
 
 
 #declare -a CHPIDs=(58 59) # good path
-#declare -a CHPIDs=(66 67) # NPIV
- declare -a CHPIDs=(5a 5b) # ERROR INJECTION
+declare -a CHPIDs=(66 67) # NPIV
+#declare -a CHPIDs=(5a 5b) # ERROR INJECTION
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs for T83LP25
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.1880 0.0.18c0) # error recovery
+declare -a ZFCPADAPTOR=(0.0.1780 0.0.17A0) # error recovery
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
