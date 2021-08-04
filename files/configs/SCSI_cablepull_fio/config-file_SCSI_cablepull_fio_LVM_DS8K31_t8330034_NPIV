@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t8330031_NPIV
+# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t8330034_NPIV
 # Owner: Thomas Lambart
 # Date: 03.08.2021
 # Description: Config-file for SCSI_cablepull_fio_NPIV
@@ -22,7 +22,7 @@
 
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for T8330033
+# 1.) Define DEVNOs for T8330034
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
 declare -a ZFCPADAPTOR=(0.0.17A2 0.0.17C2) # error recovery
