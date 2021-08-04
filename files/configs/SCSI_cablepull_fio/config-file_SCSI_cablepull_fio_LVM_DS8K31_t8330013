@@ -1,8 +1,8 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_basic_fio_LVM_DS8K31_t3530031
+# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t8330013
 # Owner: Thorsten Diehl
 # Date: 15.11.2019
-# Description: Config-file for SCSI_basic_fio
+# Description: Config-file for SCSI_cablepull_fio
 #
 #
 #################################################
@@ -18,10 +18,10 @@
 # 361      5B       18C0     DS8K31
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for T3530031 
+# 1.) Define DEVNOs for t8330013 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.181f 0.0.185f) # good path
+declare -a ZFCPADAPTOR=(0.0.189f 0.0.18df) # error recovery
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
@@ -33,10 +33,10 @@ STORAGETYPE=DS8K
 # 3.) Define Storage Ports on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a STORAGEPORTS=(0x500507630900d430 0x500507630904d430)
+declare -a STORAGEPORTS=(0x500507630908d430 0x50050763090cd430)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 4.) Define SCSI LUNs on DS8K31:    
+# 4.) Define SCSI LUNs on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
 declare -a SCSILUNS=(0x4014403000000000 0x4014403100000000 0x4014403800000000 0x4014403900000000 0x4014403a00000000 0x4014403b00000000 0x4014403c00000000 0x4014403d00000000 0x4014403e00000000 0x4014403f00000000 0x4014403200000000 0x4014403300000000 0x4014403400000000 0x4014403500000000 0x4014403600000000 0x4014403700000000)
@@ -52,7 +52,7 @@ if [ "${LVM}" == "TRUE" ]; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume1 
+# function createLogicalVolume1
 # Creates a striped logical volume with 2 stripes, a stripesize of 8KB and a size of 1500MB
 # e.g. lvcreate -i 3 -I 8 -L 100M vg00
 # - - - - - - - - - - - - - - - - - - - - -
@@ -62,9 +62,9 @@ LVNAME1=LV1
 STRIPES1=2
 STRIPESIZE1=8
 LVSIZE1=1500MB
-   
+
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume2 
+# function createLogicalVolume2
 # Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 3
 # devices (or option --alloc anywhere) - two for the mirror devices and one for the disk log.
 # e.g.  lvcreate -m1 -L 500M vg0
@@ -76,7 +76,7 @@ MIRRORS=1
 LVSIZE2=1500MB
 
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume3 
+# function createLogicalVolume3
 # Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 2
 # devices - the log is "in-memory"
 # e.g. lvcreate -m1 --mirrorlog core -L 500M vg00
@@ -88,7 +88,7 @@ MIRRORS=1
 LVSIZE3=1500MB
 
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume4 
+# function createLogicalVolume4
 # Creates a linear logical volume
 # e.g  lvcreate -L 64M -n lvol1 vg00 /dev/sda:0-7 /dev/sdb:0-7
 # - - - - - - - - - - - - - - - - - - - - -
@@ -98,7 +98,7 @@ LVNAME4=LV4
 LVSIZE4=1500MB
 
 # - - - - - - - - - - - - - - - - - - - - -
-# function createLogicalVolume5 
+# function createLogicalVolume5
 # Creates a 2GiB RAID5 logical volume, with 3 stripes (plus a parity drive for a total of 4 devices)
 # and a stripesize of 64KiB
 # e.g.  lvcreate --type raid5 -L 5G -i 3 -I 64 -n my_lv vg00
@@ -109,4 +109,3 @@ LVNAME5=LV5
 STRIPES5=3
 STRIPESIZE5=64
 LVSIZE5=2G
-
