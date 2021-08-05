@@ -1,7 +1,7 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t8330033
-# Owner: Thomas Lambart
-# Date: 03.08.2021
+# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t8330031_NPIV
+# Owner: Thorsten Diehl
+# Date: 13.02.2020
 # Description: Config-file for SCSI_cablepull_fio
 #
 #
@@ -20,13 +20,11 @@
 # 2B8      66      1780      DS8K31
 # 2B9      67      17A0      DS8K31
 
-
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for T8330033
+# 1.) Define DEVNOs for T8330031
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.18a1 0.0.18e1) # error recovery
-# declare -a ZFCPADAPTOR=(0.0.189f 0.0.18df) # error recovery
+declare -a ZFCPADAPTOR=(0.0.1782 0.0.17a2) # error recovery
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
@@ -44,7 +42,7 @@ declare -a STORAGEPORTS=(0x500507630918d430 0x50050763091cd430)
 # 4.) Define SCSI LUNs on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a SCSILUNS=(0x401440b000000000 0x401440b100000000 0x401440b800000000 0x401440b900000000 0x401440ba00000000 0x401440bb00000000 0x401440bc00000000 0x401440bd00000000 0x401440be00000000 0x401440bf00000000 0x401440b200000000 0x401440b300000000 0x401440b400000000 0x401440b500000000 0x401440b600000000 0x401440b700000000)
+declare -a SCSILUNS=(0x4014405000000000 0x4014405100000000 0x4014405800000000 0x4014405900000000 0x4014405a00000000 0x4014405b00000000 0x4014405c00000000 0x4014405d00000000 0x4014405e00000000 0x4014405f00000000 0x4014405200000000 0x4014405300000000 0x4014405400000000 0x4014405500000000 0x4014405600000000 0x4014405700000000)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 5.) LVM Configuration:

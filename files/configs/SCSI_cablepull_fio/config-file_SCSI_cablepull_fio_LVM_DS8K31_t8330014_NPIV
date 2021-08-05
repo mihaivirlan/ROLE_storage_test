@@ -1,40 +1,30 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t83lp25
-# Owner: Thomas Lambart
-#
-# Date: 09.11.2020
+# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_t8330014_NPIV
+# Owner: Thorsten Diehl
+# Date: 15.11.2019
 # Description: Config-file for SCSI_cablepull_fio
 #
 #
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 0.) Define CHPIDs
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+#################################################
+# T35 connection for GOOD PATH I/O
+# PCHID    CHPID    DEVNO    STORAGE SERVER
+# 340      58       1800     DS8K31
+# 341      59       1840     DS8K31
 
 #################################################
-# T83 connection for GOOD PATH I/O
+# T35 connection for ERROR INJECTION
 # PCHID    CHPID    DEVNO    STORAGE SERVER
-# 28C      58       1800     DS8K31
-# 28D      59       1840     DS8K31
-
-#################################################
-# T83 connection for ERROR INJECTION
-# PCHID    CHPID    DEVNO    STORAGE SERVER
-# 2AC      5A       1880     DS8K31
-# 2AD      5B       18C0     DS8K31
+# 360      5A       1880     DS8K31
+# 361      5B       18C0     DS8K31
 # -- NPIV --
 # 2B8      66      1780      DS8K31
 # 2B9      67      17A0      DS8K31
 
-
-#declare -a CHPIDs=(58 59) # good path
-#declare -a CHPIDs=(66 67) # NPIV
- declare -a CHPIDs=(5a 5b) # ERROR INJECTION
-
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for T83LP25
+# 1.) Define DEVNOs for t8330014
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.1880 0.0.18c0) # error recovery
+declare -a ZFCPADAPTOR=(0.0.1781 0.0.17a1) # error recovery
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
@@ -46,13 +36,13 @@ STORAGETYPE=DS8K
 # 3.) Define Storage Ports on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a STORAGEPORTS=(0x500507630918d430 0x50050763091cd430)
+declare -a STORAGEPORTS=(0x500507630908d430 0x50050763090cd430)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 4.) Define SCSI LUNs on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a SCSILUNS=(0x401440d000000000 0x401440d100000000 0x401440d800000000 0x401440d900000000 0x401440da00000000 0x401440db00000000 0x401440dc00000000 0x401440dd00000000 0x401440de00000000 0x401440df00000000 0x401440d200000000 0x401440d300000000 0x401440d400000000 0x401440d500000000 0x401440d600000000 0x401440d700000000)
+declare -a SCSILUNS=(0x4014404000000000 0x4014404100000000 0x4014404800000000 0x4014404900000000 0x4014404a00000000 0x4014404b00000000 0x4014404c00000000 0x4014404d00000000 0x4014404e00000000 0x4014404f00000000 0x4014404200000000 0x4014404300000000 0x4014404400000000 0x4014404500000000 0x4014404600000000 0x4014404700000000)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 5.) LVM Configuration:

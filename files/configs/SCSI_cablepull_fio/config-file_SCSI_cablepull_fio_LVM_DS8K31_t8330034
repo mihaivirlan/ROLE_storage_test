@@ -26,7 +26,7 @@
 # 1.) Define DEVNOs for T8330034
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.18A2 0.0.18E2) # error recovery
+declare -a ZFCPADAPTOR=(0.0.18a2 0.0.18e2) # error recovery
 # declare -a ZFCPADAPTOR=(0.0.189f 0.0.18df) # error recovery
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
