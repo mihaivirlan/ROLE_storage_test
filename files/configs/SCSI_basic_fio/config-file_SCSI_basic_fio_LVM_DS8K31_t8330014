@@ -1,18 +1,18 @@
 #!/bin/sh
 # Script-Name: 00_config-file = config-file_SCSI_basic_fio_LVM_DS8K31_t8330014
-# Owner: Thorsten Diehl
-# Date: 15.11.2019
+# Owner: Zouhaier Zarrouk
+# Date: 10.08.2021
 # Description: Config-file for SCSI_basic_fio
 #
 #
 #################################################
-# T35 connection for GOOD PATH I/O
+# T83 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
 # 340      58       1800     DS8K31
 # 341      59       1840     DS8K31
 
 #################################################
-# T35 connection for ERROR INJECTION
+# T83 connection for ERROR INJECTION
 # PCHID    CHPID    DEVNO    STORAGE SERVER
 # 360      5A       1880     DS8K31
 # 361      5B       18C0     DS8K31
@@ -21,7 +21,7 @@
 # 1.) Define DEVNOs for t8330014
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.1820 0.0.1860) # good path
+declare -a ZFCPADAPTOR=(0.0.180e 0.0.184e) # good path
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
