@@ -55,7 +55,7 @@ start_section 0 "Setting up test system"
     fi
 
     if [ "${REUSELVS}" == "FALSE" ]; then
-	    if (isRhel7 || isRhel8); then   
+	    if (isRhel7 || isRhel8); then
             dmsetup remove_all
             multipath -F
             sleep 1
@@ -91,11 +91,11 @@ start_section 0 "Setting up test system"
             start_section 1 "Creating Physical Volumes"
                 createPhysicalVolumes
             end_section 1
-        
+
             start_section 1 "Creating Volume Group"
                 createVolumegroups
             end_section 1
-            
+
             start_section 1 "Creating logical volumes"
 
                 start_section 2 "Creates a striped logical volume (LogicalVolume1)"
@@ -123,34 +123,35 @@ start_section 0 "Setting up test system"
                 start_section 2 "List all created logical volumes"
                     assert_exec 0 "lvs"
                 end_section  2
-                
+
             end_section 1
         fi
     else
         assert_warn 0 0 "Reusing existing LVM..."
+        vgchange -an
+        sleep 1
+        udevadm settle
+        multipath -r
+        udevadm settle
+        assert_exec 0 "vgchange -ay"
+        sleep 1
+        udevadm settle
+
     fi
 
 # execute this in any case
 
-    if  [ "${LVM}" == "TRUE" ]; then        
+    if  [ "${LVM}" == "TRUE" ]; then
         start_section 1 "Creating different filesystems on logical volumes"
-            vgchange -an
-            sleep 1
-            udevadm settle 
-            multipath -r
-            udevadm settle 
-            assert_exec 0 "vgchange -ay"
-            sleep 1
             if [ $(lvs |wc -l) -eq 0 ]; then
                 assert_fail 0 1 "no logical volumes found"
             fi 
-            udevadm settle 
             createFilesystemOnLV
         end_section 1
     else
         start_section 1 "Creating different filesystems on partitions"
             createFilesystemOnPartition
-        end_section 1    
+        end_section 1
     fi
 
 show_test_results
