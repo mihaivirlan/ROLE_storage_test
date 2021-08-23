@@ -136,6 +136,7 @@ start_section 0 "Setting up test system"
         assert_exec 0 "vgchange -ay"
         sleep 1
         udevadm settle
+        end_section 1
 
     fi
 
@@ -145,7 +146,7 @@ start_section 0 "Setting up test system"
         start_section 1 "Creating different filesystems on logical volumes"
             if [ $(lvs |wc -l) -eq 0 ]; then
                 assert_fail 0 1 "no logical volumes found"
-            fi 
+            fi
             createFilesystemOnLV
         end_section 1
     else
