@@ -26,7 +26,7 @@
 # parameter:
 #    e.g.: setup_dasds.sh -a "c6e0-c6e3" -d "c667:ext3,c6a7:ext4,c6c7:xfs" -c "38,39" -m /mnt2
 #    -a [aliasse]
-#    -MD [username:virt_addr1,username:virt_addr2,...,username:virt_addrn]
+#    -md [username:virt_addr1,username:virt_addr2,...,username:virt_addrn]
 #    -d [Bus-ID1:FS_type,Bus-ID2:FS_type,....,Bus-IDn:FS_type]
 #    -c for the CHPIDs is optional
 #    -m MOUNT_DIR is optional, could also be a global variable "$MOUNT_DIR"
@@ -51,7 +51,7 @@ usage () {
   echo "           e.g. \"c667:ext3,c6a7:ext4,c6c7:xfs\" "
   echo " [-a \"aliasse\"]"
   echo "           e.g. \"c6e0-c6e3\""
-  echo " [-MD \"[MDISKOWNER:virt_addr1,MDISKOWNER:virt_addr2,...,MDISKOWNER:virt_addrn]\" ]"
+  echo " [-md \"[MDISKOWNER:virt_addr1,MDISKOWNER:virt_addr2,...,MDISKOWNER:virt_addrn]\" ]"
   echo "           e.g  \"linmdisk:0201,linmdisk:0202,linmdisk:0203\" "
   echo " [-c  \"[CHPID1,CHPID2]\"] "
   echo "           e.g. -c \"38,39\" or -c \"3a,3b\" "
@@ -75,7 +75,7 @@ start_section 1 "Start of the parameter parsing"
                     "-a"|"--aliasse")         DASD_ali="$2"; shift; ;;
                     "-d"|"--devices")         DASD_fs="$2"; shift; ;;
                     "-c"|"--chpid")           CHPIDs="$2"; shift; ;;
-                    "-MD"|"--minidisk")       MINIDISK="$2"; shift; ;;
+                    "-md"|"--minidisk")       MINIDISK="$2"; shift; ;;
                     "-m"|"--mountdir")        MOUNT_DIR="$2"; shift; ;;
                     *)
                             echo "Unknown parameter: $1"; ;;
@@ -93,7 +93,7 @@ start_section 1 "Start of the parameter parsing"
     echo "-a    aliasse                 = ${DASD_ali}"
     echo "-c    chpid                   = ${CHPIDs}"
     echo "-d    dasd devices(FS-type)   = ${DASD_fs}"
-    echo "-MD   minidisk                = ${MINIDISK}"
+    echo "-md   minidisk                = ${MINIDISK}"
     echo "-m    MOUNT_DIR               =  $MOUNT_DIR"
     echo ""
 
