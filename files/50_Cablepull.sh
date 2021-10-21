@@ -228,6 +228,16 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
 
     # section for polatis switch
     if [ "$switch_type" = "polatis" ]; then
+        # computing maximum expected runtime, which is required as value
+        # for concurrent:createLock expiration time (in seconds), just in
+        # case something breaks and the script does not release the lock
+        # for short times we need more time for of set 
+        if  [[ $TIME_OFF -eq random || $TIME_ON -eq random ]]; then
+            etime=$(( $(echo $PORTS |awk -F "," '{print NF}')*$(( $(($TIME_OFF>0?$TIME_OFF:120)) + $(($TIME_ON>0?$TIME_ON:120)) +20 ))*$CYCLES ))
+        else
+            etime=$(( $(echo $PORTS |awk -F "," '{print NF}')*$(( $(($TIME_OFF>0?$TIME_OFF:120)) + $(($TIME_ON>0?$TIME_ON:120)) +50 ))*$CYCLES ))
+        fi
+
         WDIR="./cablepull"
         PORTSTAT=${WDIR}/connections/portStates_$$.out
         NOT_ALLOW=${WDIR}/connections/not_allow.out
