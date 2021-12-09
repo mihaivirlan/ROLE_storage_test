@@ -43,7 +43,7 @@ STORAGETYPE=DS8K
 # 3.) Define Storage Ports on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a STORAGEPORTS=(0x500507630908d430 0x50050763090cd430)
+declare -a STORAGEPORTS=(0x5005076309035430 0x50050763090b5430)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 4.) Define SCSI LUNs on DS8K31
