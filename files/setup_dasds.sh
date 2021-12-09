@@ -171,15 +171,6 @@ start_section 1 "enable DASD aliasse"
   fi
 end_section 1
 
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-# echo "EXIT 99"
-# exit 99
-#------------------------------------------------------------------------------#
-
-
-
-
 start_section 1 "make the partitions and file systems"
 for I in ${DASD_fs//,/ }; do
   DASD=${I%:*}
@@ -194,23 +185,34 @@ for I in ${DASD_fs//,/ }; do
 
 #------------------------------------------------------------------------------#
 # create partitions; overwrite everything
+# tep. change in all storage::mkpart lines:
+#             Bug in RHEL7 is not able to read "0%"
+#             for that it was chabged into "1"
+#             this should be change back at Jun 2022
+
   case "$(storage::getDASDFormatLayout /dev/${dev_name})" in
       CDL)
           # get number of cylinders
           CYLINDERS=`parted -s /dev/${dev_name} -- unit cyl print |grep /dev/${dev_name} |cut -f2 -d':'`;
           if [[ ${CYLINDERS%cyl} -gt 524122 ]]; then
             ## if more then 524122 cyl then we have an "EAV DASD" and will create two partitions
-            echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%\"";
-            storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%" 2>&1;
+            #echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%\"";
+            #storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 75%,ext3 75% 100%" 2>&1;
+            echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 1 75%,ext3 75% 100%\"";
+            storage::mkpart "/dev/${dev_name}:dasd:ext3 1 75%,ext3 75% 100%" 2>&1;
           else
             ## normal DASD; one partition only
-            echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 100%\"";
-            storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 100%"  2>&1;
+            #echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 0% 100%\"";
+            #storage::mkpart "/dev/${dev_name}:dasd:ext3 0% 100%"  2>&1;
+            echo "storage::mkpart \"/dev/${dev_name}:dasd:ext3 1 100%\"";
+            storage::mkpart "/dev/${dev_name}:dasd:ext3 1 100%"  2>&1;
           fi
           ;;
       LDL)
-          echo "storage::mkpart \"/dev/${dev_name}:gpt:ext3 0% 100%\"";
-          storage::mkpart "/dev/${dev_name}:gpt:ext3 0% 100%"  2>&1;
+          #echo "storage::mkpart \"/dev/${dev_name}:gpt:ext3 0% 100%\"";
+          #storage::mkpart "/dev/${dev_name}:gpt:ext3 0% 100%"  2>&1;
+          echo "storage::mkpart \"/dev/${dev_name}:gpt:ext3 1 100%\"";
+          storage::mkpart "/dev/${dev_name}:gpt:ext3 1 100%"  2>&1;
           ;;
       *)
           echo "unexpected error; DASD format type unknown";
