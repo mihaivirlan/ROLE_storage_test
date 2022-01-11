@@ -12,11 +12,8 @@ function add_lun {
     ADAPTOR=$1
     WWPN=$2
     LUN=$3
-    if [ $(common::getDistributionName) == rhel-7 ]; then
-        scsi::addLunSYSFS ${ADAPTOR} ${WWPN} ${LUN}
-    else
-        scsi::addLun      ${ADAPTOR} ${WWPN} ${LUN}
-    fi
+
+    scsi::addLun ${ADAPTOR} ${WWPN} ${LUN}
     udevadm settle
     lszfcp -D | grep  ${ADAPTOR} | grep ${WWPN} | grep ${LUN}
     RC=$?
