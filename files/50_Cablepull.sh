@@ -119,7 +119,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
     switch=`echo ${SWITCH}|awk '{print tolower($0)}'`
     case $switch in
         fcsw32_ficon|fcsw42_fcp|fcsw39_ficon|fcsw49_fcp|fcsw51_fcp_er) switch_type="brocade";;
-        10.30.222.13[7,8,9])                                           switch_type="polatis";;
+        10.30.222.13[6,7,8,9])                                           switch_type="polatis";;
         *)                           echo "Unsupported switch!"
                                      echo "Supperted switches are:"
                                      echo "fcsw32_ficon, fcsw42_fcp, fcsw39_ficon, fcsw49_fcp,"
