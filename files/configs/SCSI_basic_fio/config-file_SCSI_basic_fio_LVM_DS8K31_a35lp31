@@ -7,13 +7,13 @@
 #
 #
 #################################################
-# T83 connection for GOOD PATH I/O
+# a35 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
 # 2C0      58       1800     DS8K31
 # 2E0      59       1840     DS8K31
 
 #################################################
-# T83 connection for ERROR INJECTION
+# a35 connection for ERROR INJECTION
 # PCHID    CHPID    DEVNO    STORAGE SERVER
 # 2C4      5A       1880     DS8K31
 # 2E4      5B       18C0     DS8K31
