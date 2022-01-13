@@ -17,9 +17,7 @@
 # PCHID    CHPID    DEVNO    STORAGE SERVER
 # 2C4      5A       1880     DS8K31
 # 2E4      5B       18C0     DS8K31
-# -- NPIV --
-# 30D      56      5180      DS8K31
-# 32D      57      51A0      DS8K31
+
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 0.) Define CHPIDs
