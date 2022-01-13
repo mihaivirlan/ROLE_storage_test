@@ -1,7 +1,7 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_basic_fio_LVM_DS8K31_a35lp31
+# Script-Name: 00_config-file = config-file_SCSI_basic_fio_LVM_DS8K31_a35lpxx
 # Owner: Thomas Lambart
-# Date: 23.11.2021
+# Date: 12.01.22
 # Description: Config-file for SCSI_basic_fio
 #
 #
@@ -17,9 +17,6 @@
 # PCHID    CHPID    DEVNO    STORAGE SERVER
 # 2C4      5A       1880     DS8K31
 # 2E4      5B       18C0     DS8K31
-# -- NPIV --
-# 30D      56      5180      DS8K31
-# 32D      57      51A0      DS8K31
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 0.) Define CHPIDs
@@ -28,7 +25,7 @@
 declare -a CHPIDs=(58 59) # good path
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for A35LP31
+# 1.) Define DEVNOs for A35LPxx
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
 declare -a ZFCPADAPTOR=(0.0.1800 0.0.1840) # good path
@@ -46,10 +43,10 @@ STORAGETYPE=DS8K
 declare -a STORAGEPORTS=(0x500507630900d430 0x500507630904d430)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 4.) Define SCSI LUNs on DS8K31
+# 4.) Define SCSI LUNs on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a SCSILUNS=(0x401940a000000000 0x401940a100000000 0x401940a800000000 0x401940a900000000 0x401940aa00000000 0x401940ab00000000 0x401940ac00000000 0x401940ad00000000 0x401940ae00000000 0x401940af00000000 0x401940a200000000 0x401940a300000000 0x401940a400000000 0x401940a500000000 0x401940a600000000 0x401940a700000000)
+declare -a SCSILUNS=(0x4019401000000000 0x4019401100000000 0x4019401800000000 0x4019401900000000 0x4019401a00000000 0x4019401b00000000 0x4019401c00000000 0x4019401d00000000 0x4019401e00000000 0x4019401f00000000 0x4019401200000000 0x4019401300000000 0x4019401400000000 0x4019401500000000 0x4019401600000000 0x4019401700000000)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 5.) LVM Configuration:

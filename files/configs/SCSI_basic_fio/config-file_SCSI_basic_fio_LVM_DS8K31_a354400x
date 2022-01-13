@@ -1,7 +1,7 @@
 #!/bin/sh
-# Script-Name: 00_config-file = config-file_SCSI_basic_fio_LVM_DS8K31_a35lp31
+# Script-Name: 00_config-file = config-file_SCSI_basic_fio_LVM_DS8K31_a354400x
 # Owner: Thomas Lambart
-# Date: 23.11.2021
+# Date: 06.05.2021
 # Description: Config-file for SCSI_basic_fio
 #
 #
@@ -9,17 +9,15 @@
 #################################################
 # a35 connection for GOOD PATH I/O
 # PCHID    CHPID    DEVNO    STORAGE SERVER
-# 2C0      58       1800     DS8K31
-# 2E0      59       1840     DS8K31
+# 2C0      58       1801     DS8K31
+# 2E0      59       1841     DS8K31
 
 #################################################
 # a35 connection for ERROR INJECTION
 # PCHID    CHPID    DEVNO    STORAGE SERVER
-# 2C4      5A       1880     DS8K31
-# 2E4      5B       18C0     DS8K31
-# -- NPIV --
-# 30D      56      5180      DS8K31
-# 32D      57      51A0      DS8K31
+# 2C4      5A       1881     DS8K31
+# 2E4      5B       18C1     DS8K31
+
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 0.) Define CHPIDs
@@ -28,10 +26,10 @@
 declare -a CHPIDs=(58 59) # good path
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 1.) Define DEVNOs for A35LP31
+# 1.) Define DEVNOs for a354400x
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.1800 0.0.1840) # good path
+declare -a ZFCPADAPTOR=(0.0.1801 0.0.1841) # good path
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
@@ -46,11 +44,11 @@ STORAGETYPE=DS8K
 declare -a STORAGEPORTS=(0x500507630900d430 0x500507630904d430)
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
-# 4.) Define SCSI LUNs on DS8K31
+# 4.) Define SCSI LUNs on DS8K31:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a SCSILUNS=(0x401940a000000000 0x401940a100000000 0x401940a800000000 0x401940a900000000 0x401940aa00000000 0x401940ab00000000 0x401940ac00000000 0x401940ad00000000 0x401940ae00000000 0x401940af00000000 0x401940a200000000 0x401940a300000000 0x401940a400000000 0x401940a500000000 0x401940a600000000 0x401940a700000000)
-
+declare -a SCSILUNS=(0x4019402000000000 0x4019402100000000 0x4019402800000000 0x4019402900000000 0x4019402a00000000 0x4019402b00000000 0x4019402c00000000 0x4019402d00000000 0x4019402e00000000 0x4019402f00000000 0x4019402200000000 0x4019402300000000 0x4019402400000000 0x4019402500000000 0x4019402600000000 0x4019402700000000)
+#
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 5.) LVM Configuration:
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
