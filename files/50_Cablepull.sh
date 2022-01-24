@@ -238,6 +238,10 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
         exec > >(tee $logfile) 2>&1
 
         if ( concurrent::createLock -r autotest@bistro -e $etime /tmp/$lockdir ); then
+          #elif [[ $? -eq 1 ]]; then
+            #echo assert_fail 0 0 concurrent::createLock -r autotest@bistro -e $etime /tmp/$lockdir cannot created
+            #exit 1
+          
             echo running Polatis cable pull on $SWITCH ports $PORTS only once at a time
             # check and establish connection to polatis switch 10.30.x.x
             if (! ping -c3 -i 0.2 $SWITCH > /dev/null) ; then  # switch does not ping, tunnel it
@@ -326,6 +330,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
         else  # Polatis cable pull action is already running
             assert_warn 0 0 "Lock found, waiting for cable pull action to complete..."
             concurrent::waitForUnlock -r autotest@bistro /tmp/$lockdir --retry-count 11111111 # more than 12 days
+        
         fi
 
         assert_warn $? 0 "End of polatis cablepull test!"
