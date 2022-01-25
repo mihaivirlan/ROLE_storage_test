@@ -64,6 +64,32 @@ keepFiles () {
     fi
 }
 
+
+checkCHPIDs () {
+
+DASD_PATH='/root/DASD_cablepull_fio'
+SCSI_PATH='/root/SCSI_cablepull_fio'
+CHECK_PATH=$1
+
+if [[ "$CHECK_PATH" == "$DASD_PATH" ]]; then
+      lsdasd -l |grep paths_in_use |cut -f 2 -d: |while read CHPIDs
+    do
+      CHPIDs_count=$(echo $CHPIDs |wc -w)
+      if [[ $CHPIDs_count -lt 2 ]]; then
+         assert_warn 1 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!" 
+         #echo "checkCHPIDs function doesn't work as expected!"
+         #exit 1
+      else
+         [[ $CHPIDs_count -ge 2 ]] && assert_warn $? 0 0 "All channel paths id's are online!"
+      fi
+    done
+fi
+
+}
+
+#checkCHPIDs /root/DASD_cablepull_fio
+#assert_fail $? 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
+
 # end of function section
 
 
@@ -126,6 +152,20 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                                      echo "polatis (10.30.222.137, 10.30.222.138, 10.30.222.139)"
                                      exit 1;;
     esac
+    #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution
+    checkCHPIDs /root/DASD_cablepull_fio
+    if [[ $? -eq 1 ]]; then
+        assert_fail 1 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
+        #test assert_fail functionality
+        echo "checkCHPIDs function doesn't work as expected!"
+    else
+       [[ $? -eq 0 ]] && assert_warn 0 0 "All channel paths id's are online!"
+       #echo "Passed"
+    fi
+    #assert_fail $? 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
+    #echo "exit 99"
+    #exit 99
+    
 
     # computing maximum expected runtime, which is required as value
     # for concurrent:createLock expiration time (in seconds), just in
@@ -228,6 +268,16 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
 
     # section for polatis switch
     if [ "$switch_type" = "polatis" ]; then
+        # computing maximum expected runtime, which is required as value
+        # for concurrent:createLock expiration time (in seconds), just in
+        # case something breaks and the script does not release the lock
+        # for short times we need more time for of set 
+        if  [[ $TIME_OFF -eq random || $TIME_ON -eq random ]]; then
+            etime=$(( $(echo $PORTS |awk -F "," '{print NF}')*$(( $(($TIME_OFF>0?$TIME_OFF:120)) + $(($TIME_ON>0?$TIME_ON:120)) +20 ))*$CYCLES ))
+        else
+            etime=$(( $(echo $PORTS |awk -F "," '{print NF}')*$(( $(($TIME_OFF>0?$TIME_OFF:120)) + $(($TIME_ON>0?$TIME_ON:120)) +50 ))*$CYCLES ))
+        fi
+
         WDIR="./cablepull"
         PORTSTAT=${WDIR}/connections/portStates_$$.out
         NOT_ALLOW=${WDIR}/connections/not_allow.out
@@ -238,10 +288,6 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
         exec > >(tee $logfile) 2>&1
 
         if ( concurrent::createLock -r autotest@bistro -e $etime /tmp/$lockdir ); then
-          #elif [[ $? -eq 1 ]]; then
-            #echo assert_fail 0 0 concurrent::createLock -r autotest@bistro -e $etime /tmp/$lockdir cannot created
-            #exit 1
-          
             echo running Polatis cable pull on $SWITCH ports $PORTS only once at a time
             # check and establish connection to polatis switch 10.30.x.x
             if (! ping -c3 -i 0.2 $SWITCH > /dev/null) ; then  # switch does not ping, tunnel it
@@ -320,9 +366,23 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "RTRV-PATCH::${IPORT}:123:;" |grep '\"'
                     echo "sleeping for $ton sec..."
                     sleep $ton
+                    #call checkCHPIDS function to check if one of chpids crashed or not during execution
+                    #checkCHPIDs /root/DASD_cablepull_fio
+                    #if [[ $? -eq 1 ]]; then
+                        #assert_fail 1 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
+                    #else
+                        #[[ $? -eq 0 ]] && assert_warn 0 0 "All channel paths id's are online!"
+                    #fi
                 done
                 echo ""
             done
+            #call checkCHPIDS function to check if one of chpids crashed or not after execution
+            checkCHPIDs /root/DASD_cablepull_fio
+            if [[ $? -eq 1 ]]; then
+                assert_fail 1 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
+            else
+                [[ $? -eq 0 ]] && assert_warn 0 0 "All channel paths id's are online!"
+            fi
             echo "Ports $PORTS on switch $SWITCH had been switched off/on for $Z times!"
             echo -e "\n++++ end Cycle $Z @ $(date) ++++\n"
             ssh -S /tmp/.ssh-${SWITCH}-tunnel -O exit ${CONCURRENT_SSH_OPTIONS} autotest@bistro # remove ssh tunnel connection
@@ -330,7 +390,6 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
         else  # Polatis cable pull action is already running
             assert_warn 0 0 "Lock found, waiting for cable pull action to complete..."
             concurrent::waitForUnlock -r autotest@bistro /tmp/$lockdir --retry-count 11111111 # more than 12 days
-        
         fi
 
         assert_warn $? 0 "End of polatis cablepull test!"
