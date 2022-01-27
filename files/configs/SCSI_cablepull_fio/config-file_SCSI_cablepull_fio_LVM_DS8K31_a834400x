@@ -1,0 +1,119 @@
+#!/bin/sh
+# Script-Name: 00_config-file = config-file_SCSI_cablepull_fio_LVM_DS8K31_a834400x
+# Owner: Thomas Lambart
+# Date: 06.05.2021
+# Description: Config-file for SCSI_cablepull_fio
+#
+#
+#
+#################################################
+# a83 connection for GOOD PATH I/O
+# PCHID    CHPID    DEVNO    STORAGE SERVER
+# 2C0      58       1801     DS8K31
+# 2E0      59       1841     DS8K31
+
+#################################################
+# a83 connection for ERROR INJECTION
+# PCHID    CHPID    DEVNO    STORAGE SERVER
+# 2C4      5A       1881     DS8K31
+# 2E4      5B       18C1     DS8K31
+
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+declare -a CHPIDs=(5a 5b) # error path
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 1.) Define DEVNOs for a834400x
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+declare -a ZFCPADAPTOR=(0.0.1881 0.0.18c1) # good path
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 2.) Define Storage Server: values are DS8K,V7K
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+STORAGETYPE=DS8K
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 3.) Define Storage Ports on DS8K31:
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+declare -a STORAGEPORTS=(0x500507630913d430 0x50050763091bd430)
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 4.) Define SCSI LUNs on DS8K31:
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+declare -a SCSILUNS=(0x401a402000000000 0x401a402100000000 0x401a402800000000 0x401a402900000000 0x401a402a00000000 0x401a402b00000000 0x401a402c00000000 0x401a402d00000000 0x401a402e00000000 0x401a402f00000000 0x401a402200000000 0x401a402300000000 0x401a402400000000 0x401a402500000000 0x401a402600000000 0x401a402700000000)
+#
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 5.) LVM Configuration:
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+AMOUNTOFPARTITIONS=4
+LVM=TRUE
+if [ "${LVM}" == "TRUE" ]; then
+    AMOUNTOFPARTITIONS=1
+fi
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume1
+# Creates a striped logical volume with 2 stripes, a stripesize of 8KB and a size of 1500MB
+# e.g. lvcreate -i 3 -I 8 -L 100M vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS1=2
+VGNAME1=VG1
+LVNAME1=LV1
+STRIPES1=2
+STRIPESIZE1=8
+LVSIZE1=1500MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume2
+# Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 3
+# devices (or option --alloc anywhere) - two for the mirror devices and one for the disk log.
+# e.g.  lvcreate -m1 -L 500M vg0
+# - - - - - - - - - - - - - - - - - - - - -
+PVS2=4
+VGNAME2=VG2
+LVNAME2=LV2
+MIRRORS=1
+LVSIZE2=1500MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume3
+# Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 2
+# devices - the log is "in-memory"
+# e.g. lvcreate -m1 --mirrorlog core -L 500M vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS3=4
+VGNAME3=VG3
+LVNAME3=LV3
+MIRRORS=1
+LVSIZE3=1500MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume4
+# Creates a linear logical volume
+# e.g  lvcreate -L 64M -n lvol1 vg00 /dev/sda:0-7 /dev/sdb:0-7
+# - - - - - - - - - - - - - - - - - - - - -
+PVS4=2
+VGNAME4=VG4
+LVNAME4=LV4
+LVSIZE4=1500MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume5
+# Creates a 2GiB RAID5 logical volume, with 3 stripes (plus a parity drive for a total of 4 devices)
+# and a stripesize of 64KiB
+# e.g.  lvcreate --type raid5 -L 5G -i 3 -I 64 -n my_lv vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS5=4
+VGNAME5=VG5
+LVNAME5=LV5
+STRIPES5=3
+STRIPESIZE5=64
+LVSIZE5=2G
