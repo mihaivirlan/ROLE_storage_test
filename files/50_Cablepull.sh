@@ -32,6 +32,7 @@ source ${TESTLIBDIR}/lib/common/remote.sh || exit 1
 source ${TESTLIBDIR}/lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}/lib/toybox/common/libconcurrent.sh || exit 1
 source ${TESTLIBDIR}/functions.sh || exit 1
+[[ -r ${TESTLIBDIR}DASD.conf ]] && source ${TESTLIBDIR}DASD.conf
 CONCURRENT_SSH_OPTIONS="${CONCURRENT_SSH_OPTIONS} -i /root/.ssh/id_rsa.autotest -q"
 
 # some functions for polatis section
@@ -64,34 +65,7 @@ keepFiles () {
     fi
 }
 
-
-checkCHPIDs () {
-
-DASD_PATH='/root/DASD_cablepull_fio'
-SCSI_PATH='/root/SCSI_cablepull_fio'
-CHECK_PATH=$1
-
-if [[ "$CHECK_PATH" == "$DASD_PATH" ]]; then
-      lsdasd -l |grep paths_in_use |cut -f 2 -d: |while read CHPIDs
-    do
-      CHPIDs_count=$(echo $CHPIDs |wc -w)
-      if [[ $CHPIDs_count -lt 2 ]]; then
-         assert_warn 1 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!" 
-         #echo "checkCHPIDs function doesn't work as expected!"
-         #exit 1
-      else
-         [[ $CHPIDs_count -ge 2 ]] && assert_warn $? 0 0 "All channel paths id's are online!"
-      fi
-    done
-fi
-
-}
-
-#checkCHPIDs /root/DASD_cablepull_fio
-#assert_fail $? 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
-
 # end of function section
-
 
 usage()
 {
@@ -122,7 +96,6 @@ opt=$1
 shift
 done
 
-
 start_section 0 "Starting Switch Port Toggle / cable pull scenario"
     echo ""
     echo "Script settings:"
@@ -134,7 +107,6 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
     echo " -toff time for port off in sec     = $TIME_OFF"
     echo " -ton  time for port on in sec      = $TIME_ON"
     echo ""
-
 
     if [[ -z $SWITCH ]] || [[ -z $USERID ]] || [[ -z $PASSWD ]] || [[ -z $PORTS ]] || [[ -z $CYCLES ]] || [[ -z $TIME_OFF ]] || [[ -z $TIME_ON ]]; then
         usage
@@ -152,21 +124,14 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                                      echo "polatis (10.30.222.137, 10.30.222.138, 10.30.222.139)"
                                      exit 1;;
     esac
-    #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution
-    checkCHPIDs /root/DASD_cablepull_fio
+    # call checkDASDpath function to check if one of chpids is crashed or not, before start of execution!
+    assert_warn 0 0 "checkDASDpath $PWD $DASDs"
+    checkDASDpath $PWD $DASDs
     if [[ $? -eq 1 ]]; then
-        assert_fail 1 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
-        #test assert_fail functionality
-        echo "checkCHPIDs function doesn't work as expected!"
+       assert_fail 1 0 "Not all chpids for \"$DASDs\" are online! Please, firstly make sure that all chpids are online!"
     else
        [[ $? -eq 0 ]] && assert_warn 0 0 "All channel paths id's are online!"
-       #echo "Passed"
     fi
-    #assert_fail $? 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
-    #echo "exit 99"
-    #exit 99
-    
-
     # computing maximum expected runtime, which is required as value
     # for concurrent:createLock expiration time (in seconds), just in
     # case something breaks and the script does not release the lock
@@ -253,6 +218,14 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     fi
                     echo "sleeping for $ton sec..."
                     sleep $ton
+                    # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
+                    assert_warn 0 0 "checkDASDpath $PWD $DASDs"
+                    checkDASDpath $PWD $DASDs
+                    if [[ $? -eq 1 ]]; then
+                        assert_fail 1 0 "Not all chpids for \"$DASDs\" are online! Please, firstly make sure that all chpids are online!"
+                    else
+                        [[ $? -eq 0 ]] && assert_warn 0 0 "All channel paths id's are online!"
+                    fi
                 done
                 echo ""
             done
@@ -366,23 +339,17 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "RTRV-PATCH::${IPORT}:123:;" |grep '\"'
                     echo "sleeping for $ton sec..."
                     sleep $ton
-                    #call checkCHPIDS function to check if one of chpids crashed or not during execution
-                    #checkCHPIDs /root/DASD_cablepull_fio
-                    #if [[ $? -eq 1 ]]; then
-                        #assert_fail 1 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
-                    #else
-                        #[[ $? -eq 0 ]] && assert_warn 0 0 "All channel paths id's are online!"
-                    #fi
+                    # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
+                    assert_warn 0 0 "checkDASDpath $PWD $DASDs"
+                    checkDASDpath $PWD $DASDs
+                    if [[ $? -eq 1 ]]; then
+                        assert_fail 1 0 "Not all chpids for \"$DASDs\" are online! Please, firstly make sure that all chpids are online!"
+                    else
+                        [[ $? -eq 0 ]] && assert_warn 0 0 "All channel paths id's are online!"
+                    fi
                 done
                 echo ""
             done
-            #call checkCHPIDS function to check if one of chpids crashed or not after execution
-            checkCHPIDs /root/DASD_cablepull_fio
-            if [[ $? -eq 1 ]]; then
-                assert_fail 1 0 "Not all channel paths are online! Please, firstly make sure that all chpids are online!"
-            else
-                [[ $? -eq 0 ]] && assert_warn 0 0 "All channel paths id's are online!"
-            fi
             echo "Ports $PORTS on switch $SWITCH had been switched off/on for $Z times!"
             echo -e "\n++++ end Cycle $Z @ $(date) ++++\n"
             ssh -S /tmp/.ssh-${SWITCH}-tunnel -O exit ${CONCURRENT_SSH_OPTIONS} autotest@bistro # remove ssh tunnel connection
