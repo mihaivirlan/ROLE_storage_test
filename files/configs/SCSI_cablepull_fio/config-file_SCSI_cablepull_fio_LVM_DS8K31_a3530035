@@ -9,13 +9,13 @@
 # 0.) Define CHPIDs
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a CHPIDs=(5a 5b) # good path
+declare -a CHPIDs=(5a 5b) # error path
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 1.) Define DEVNOs for a3530035
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 
-declare -a ZFCPADAPTOR=(0.0.18a3 0.0.18e3) # good path
+declare -a ZFCPADAPTOR=(0.0.18a3 0.0.18e3) # error path
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
 # 2.) Define Storage Server: values are DS8K,V7K
