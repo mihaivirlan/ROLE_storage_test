@@ -71,31 +71,6 @@ function checkDASDpath {
     
 }
 
-# function checkDASDpath {
-
-#     DASD_PATH='/root/DASD_cablepull_fio'
-#     SCSI_PATH='/root/SCSI_cablepull_fio'
-#     CHECK_PATH=$1
-
-#     if [[ "$CHECK_PATH" == "$DASD_PATH" ]]; then
-#         if [[ -r ${PWD}/DASD.conf ]]; then
-#            DASDs=$(cat ${PWD}/DASD.conf | grep -o '".*"' | sed 's/"//g')
-#         else
-#            assert_fail 1 0 "DASD config file \"${PWD}/DASD.conf\" is not readable or does not exist!"
-#         fi
-#             lsdasd -l $DASDs |grep paths_in_use |cut -f 2 -d: |while read CHPIDs
-#         do
-#             CHPIDs_count=$(echo $CHPIDs |wc -w)
-#             if [[ $CHPIDs_count -lt 2 ]]; then
-#                 assert_warn 1 0 "Only $CHPIDs channel paths is online!"
-#             else
-#                 [[ $CHPIDs_count -ge 2 ]] && assert_warn $? 0 0 "Channel paths verification successfully passed!"
-#             fi
-#         done
-#     fi
-# }
-
-
 function createDeviceList {
 
     if [ ! -e ${DEVICE_LIST} ]; then

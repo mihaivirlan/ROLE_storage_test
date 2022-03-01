@@ -131,10 +131,10 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
 	if [[ -n $DASDs ]]; then
 	    for DASD in $DASDs
 			do
-			    echo "checkDASDpath $DASDs"
-			    checkDASDpath $DASDs
+			    echo "checkDASDpath $DASD"
+			    checkDASDpath $DASD
 			    if [[ $? -eq 1 ]]; then
-				    assert_fail 1 0 "Not all CHPIDs for \"$DASDs\" are online! Please, firstly make sure that all CHPIDs are online!"
+				    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
 			    fi
 			done
 	else
@@ -231,10 +231,10 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     if [[ -n $DASDs ]]; then
                         for DASD in $DASDs
                             do
-                                echo "checkDASDpath $DASDs"
-                                checkDASDpath $DASDs
+                                echo "checkDASDpath $DASD"
+                                checkDASDpath $DASD
                                 if [[ $? -eq 1 ]]; then
-                                    assert_fail 1 0 "Not all CHPIDs for \"$DASDs\" are online! Please, firstly make sure that all CHPIDs are online!"
+                                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
                                 fi
                             done
                     else
@@ -357,10 +357,10 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     if [[ -n $DASDs ]]; then
                         for DASD in $DASDs
                             do
-                                echo "checkDASDpath $DASDs"
-                                checkDASDpath $DASDs
+                                echo "checkDASDpath $DASD"
+                                checkDASDpath $DASD
                                 if [[ $? -eq 1 ]]; then
-                                    assert_fail 1 0 "Not all CHPIDs for \"$DASDs\" are online! Please, firstly make sure that all CHPIDs are online!"
+                                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
                                 fi
                             done
                     else
