@@ -31,7 +31,8 @@ source ${TESTLIBDIR}/lib/common/results.sh || exit 1
 source ${TESTLIBDIR}/lib/common/remote.sh || exit 1
 source ${TESTLIBDIR}/lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}/lib/toybox/common/libconcurrent.sh || exit 1
-source ${TESTLIBDIR}/functions.sh || exit 1
+source ${TESTLIBDIR}/functions.sh || exit 1 
+[[ -r ${TESTLIBDIR}/DASD.conf ]] && source ${TESTLIBDIR}/DASD.conf
 CONCURRENT_SSH_OPTIONS="${CONCURRENT_SSH_OPTIONS} -i /root/.ssh/id_rsa.autotest -q"
 
 # some functions for polatis section
@@ -118,14 +119,32 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
 
     switch=`echo ${SWITCH}|awk '{print tolower($0)}'`
     case $switch in
+<<<<<<< HEAD
         fcsw32_ficon|fcsw42_fcp|fcsw39_ficon|fcsw49_fcp|fcsw51_fcp_er) switch_type="brocade";;
         10.30.222.13[6,7,8,9])                                         switch_type="polatis";;
+=======
+        fcsw32_ficon|fcsw42_fcp|fcsw39_ficon|fcsw49_fcp) switch_type="brocade";;
+        10.30.222.13[6,7,8,9])                             switch_type="polatis";;
+>>>>>>> d487262681160729ed035ae2b1dc265d3ac15a81
         *)                           echo "Unsupported switch!"
                                      echo "Supperted switches are:"
                                      echo "fcsw32_ficon, fcsw42_fcp, fcsw39_ficon, fcsw49_fcp,"
-                                     echo "polatis (10.30.222.137, 10.30.222.138, 10.30.222.139)"
+                                     echo "polatis (10.30.222.137, 10.30.222.136, 10.30.222.138, 10.30.222.139)"
                                      exit 1;;
     esac
+    #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+	if [[ -n $DASDs ]]; then
+	    for DASD in $DASDs
+			do
+			    echo "checkDASDpath $DASD"
+			    checkDASDpath $DASD
+			    if [[ $? -eq 1 ]]; then
+				    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+			    fi
+			done
+	else
+		assert_fail 1 0 "variable \"DASDs\" is not defined"
+	fi
 
     # computing maximum expected runtime, which is required as value
     # for concurrent:createLock expiration time (in seconds), just in
@@ -213,6 +232,19 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     fi
                     echo "sleeping for $ton sec..."
                     sleep $ton
+                    # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
+                    if [[ -n $DASDs ]]; then
+                        for DASD in $DASDs
+                            do
+                                echo "checkDASDpath $DASD"
+                                checkDASDpath $DASD
+                                if [[ $? -eq 1 ]]; then
+                                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                                fi
+                            done
+                    else
+                        assert_fail 1 0 "variable \"DASDs\" is not defined"
+                    fi
                 done
                 echo ""
             done
@@ -326,6 +358,19 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "RTRV-PATCH::${IPORT}:123:;" |grep '\"'
                     echo "sleeping for $ton sec..."
                     sleep $ton
+                    # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
+                    if [[ -n $DASDs ]]; then
+                        for DASD in $DASDs
+                            do
+                                echo "checkDASDpath $DASD"
+                                checkDASDpath $DASD
+                                if [[ $? -eq 1 ]]; then
+                                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                                fi
+                            done
+                    else
+                        assert_fail 1 0 "variable \"DASDs\" is not defined"
+                    fi
                 done
                 echo ""
             done
