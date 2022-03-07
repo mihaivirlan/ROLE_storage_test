@@ -137,8 +137,6 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
 				    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
 			    fi
 			done
-	else
-		assert_fail 1 0 "variable \"DASDs\" is not defined"
 	fi
 
     # computing maximum expected runtime, which is required as value
@@ -237,8 +235,6 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                                     assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
                                 fi
                             done
-                    else
-                        assert_fail 1 0 "variable \"DASDs\" is not defined"
                     fi
                 done
                 echo ""
@@ -363,8 +359,6 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                                     assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
                                 fi
                             done
-                    else
-                        assert_fail 1 0 "variable \"DASDs\" is not defined"
                     fi
                 done
                 echo ""
