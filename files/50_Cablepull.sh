@@ -227,16 +227,16 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     echo "sleeping for $ton sec..."
                     sleep $ton
                     # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
-                    if [[ -n $DASDs ]]; then
-                        for DASD in $DASDs
-                            do
-                                echo "checkDASDpath $DASD"
-                                checkDASDpath $DASD
-                                if [[ $? -eq 1 ]]; then
-                                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
-                                fi
-                            done
-                    fi
+                    # if [[ -n $DASDs ]]; then
+                    #     for DASD in $DASDs
+                    #         do
+                    #             echo "checkDASDpath $DASD"
+                    #             checkDASDpath $DASD
+                    #             if [[ $? -eq 1 ]]; then
+                    #                 assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                    #             fi
+                    #         done
+                    # fi
                 done
                 echo ""
             done
@@ -351,16 +351,16 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     echo "sleeping for $ton sec..."
                     sleep $ton
                     # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
-                    if [[ -n $DASDs ]]; then
-                        for DASD in $DASDs
-                            do
-                                echo "checkDASDpath $DASD"
-                                checkDASDpath $DASD
-                                if [[ $? -eq 1 ]]; then
-                                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
-                                fi
-                            done
-                    fi
+                    # if [[ -n $DASDs ]]; then
+                    #     for DASD in $DASDs
+                    #         do
+                    #             echo "checkDASDpath $DASD"
+                    #             checkDASDpath $DASD
+                    #             if [[ $? -eq 1 ]]; then
+                    #                 assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                    #             fi
+                    #         done
+                    # fi
                 done
                 echo ""
             done
