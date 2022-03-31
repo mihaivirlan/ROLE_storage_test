@@ -5,6 +5,7 @@
 # Description:  Collect ziomon data
 #
 # 07. May 21: TL changes for $RUN   "... elif...else... fi"
+# 31. Mar 22: TD change to exclude system volumes from ziomon
 #
 # Load testlib
 TESTLIBDIR="${TESTLIBDIR:-$(dirname $0)/}"
@@ -46,7 +47,9 @@ start_section 0 "Collect ziomon data for all multipath devices"
             mount | grep debugfs >> /dev/null 2>&1
         end_section 1
 
-        DEVICELIST=$(ls /dev/mapper/ | grep mpath | grep -v "[1-9]$\|p[1-9]\|-p[1-9]\|-part[1-9]\|_part[1-9]" | sed s'/mpath/\/dev\/mapper\/mpath/'g)
+#        DEVICELIST=$(ls /dev/mapper/ | grep mpath | grep -v "[1-9]$\|p[1-9]\|-p[1-9]\|-part[1-9]\|_part[1-9]" | sed s'/mpath/\/dev\/mapper\/mpath/'g)  # including all multipath volumes
+        DEVICELIST=$(cat ./deviceList.txt | awk '{print $1}' | sed s%/dev/disk/by-id/dm-name-mpath%/dev/mapper/mpath%g)    # using only the multipath volumes under test, as listed in deviceList.txt
+
         echo "ziomon -d ${DURATION} -i ${INTERVALL_LENGTH} -l ${LIMIT} -o ${DATAFILE}  ${DEVICELIST}"
         ziomon -d ${DURATION} -i ${INTERVALL_LENGTH} -l ${LIMIT} -o ${DATAFILE}  ${DEVICELIST}
         assert_fail $? 0 "PASSED if ziomon could collect data"
