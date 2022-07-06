@@ -1,0 +1,100 @@
+#!/bin/sh
+# Script-Name: config-file_DASD_basic_fio_LVM
+# Owner: Thomas Lambart
+# Date: 23.06.2022
+#
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 0.) Define CHPIDs
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+declare -a CHPIDs=(38 39) # good path
+
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 1.) Define DEVNOs and remote ports (DS8K28)
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+STORAGETYPE=DS8K
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 2.) Define DEVNOs and remote ports (DS8K28) for good path
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+	# declare -a ZFCPADAPTOR=(0.0.1800 0.0.1840)
+	# declare -a STORAGEPORTS=(0x500507630300d327 0x500507630303d327)
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 3.) Define SCSI LUNs on DS8K28:
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+ LVM_DASDs="c800-c80f"
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+# 4.) LVM Configuration:
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = >>>
+
+AMOUNTOFPARTITIONS=4
+LVM=TRUE
+if [ "${LVM}" == "TRUE" ]; then
+    AMOUNTOFPARTITIONS=1
+fi
+
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume1
+# Creates a striped logical volume with 2 stripes, a stripesize of 8KB and a size of 1500MB
+# e.g. lvcreate -i 3 -I 8 -L 100M vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS1=2
+VGNAME1=Volumegroup1
+LVNAME1=LogicalVolume1
+STRIPES1=2
+STRIPESIZE1=8
+LVSIZE1=1300MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume2
+# Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 3
+# devices (or option --alloc anywhere) - two for the mirror devices and one for the disk log.
+# e.g.  lvcreate -m1 -L 500M vg0
+# - - - - - - - - - - - - - - - - - - - - -
+PVS2=4
+VGNAME2=Volumegroup2
+LVNAME2=LogicalVolume2
+MIRRORS=1
+LVSIZE2=1300MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume3
+# Creates a mirror logical volume with 2 sides with a useable size of 1500 MiB. This operation would require 2
+# devices - the log is "in-memory"
+# e.g. lvcreate -m1 --mirrorlog core -L 500M vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS3=4
+VGNAME3=Volumegroup3
+LVNAME3=LogicalVolume3
+MIRRORS=1
+LVSIZE3=1300MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume4
+# Creates a linear logical volume
+# e.g  lvcreate -L 64M -n lvol1 vg00 /dev/sda:0-7 /dev/sdb:0-7
+# - - - - - - - - - - - - - - - - - - - - -
+PVS4=2
+VGNAME4=Volumegroup4
+LVNAME4=LogicalVolume4
+LVSIZE4=1300MB
+
+# - - - - - - - - - - - - - - - - - - - - -
+# function createLogicalVolume5
+# Creates a 2GiB RAID5 logical volume, with 3 stripes (plus a parity drive for a total of 4 devices)
+# and a stripesize of 64KiB
+# e.g.  lvcreate --type raid5 -L 5G -i 3 -I 64 -n my_lv vg00
+# - - - - - - - - - - - - - - - - - - - - -
+PVS5=4
+VGNAME5=Volumegroup5
+LVNAME5=LogicalVolume5
+STRIPES5=3
+STRIPESIZE5=64
+LVSIZE5=1500MB

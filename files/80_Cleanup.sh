@@ -15,6 +15,10 @@
 # All mounted filesystem at $MOUNT_DIR will be unmounted and
 # all DASDs who belong to then will be disabled.
 #
+# DASDs for LVM
+# 04.07.2022 Thomas Lambart
+# add the LVM parts for DASDs
+#
 #
 #
 
@@ -137,6 +141,27 @@ start_section 1 "Deactivating disks"
             unmountFilesystem
         end_section 2
 
+		# determine if LVM is used
+		if [ "${CLEANUP_LVM}" == "TRUE" ] && [ "${LVM}" == "TRUE" ]; then
+			start_section 2 "Removing logical volumes"
+				removeLogicalVolumes
+			end_section 2
+
+			start_section 2 "Removing volumegroups"
+				removeVolumegroups
+			end_section 2
+
+			start_section 2 "Removing physical volumes"
+				removePhysicalVolumes
+			end_section 2
+
+			# delete partition(s)
+			start_section 2 "Deleting partition on multipath devices"
+				deletePartitions
+			end_section 2
+		fi
+
+
         start_section 2 "disable DASD aliasse"
             if [[ -n $DASD_ali ]]; then
               echo "disable aliassses $DASD_ali"
@@ -157,6 +182,17 @@ start_section 1 "Deactivating disks"
             echo "check ${TESTLIBDIR}DASD.conf"
           fi
         end_section 2
+
+        start_section 2 "disable LVM_DASDs"
+         if [[ -n $LVM_DASDs ]]; then
+			 echo "disable $LVM_DASDs"
+             dasd::disable $LVM_DASDs
+         else
+           echo "variable \"LVM_DASDs\" is not defined"
+           echo "check ${TESTLIBDIR}DASD.conf"
+         fi
+       end_section 2
+
 
         start_section 2 "clean up ${TESTLIBDIR}DASD.conf"
         if [[ -e ${TESTLIBDIR}DASD.conf ]]; then
