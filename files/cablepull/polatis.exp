@@ -1,0 +1,35 @@
+#!/usr/bin/expect
+
+#Run the given command on polatis switch
+
+set HOST [lindex $argv 0];
+set PORT [lindex $argv 1];
+set USER [lindex $argv 2];
+set PASSWD [lindex $argv 3];
+set CMD [lindex $argv 4];
+set timeout 30;
+
+send_user "\n$HOST $PORT $USER $CMD\n"
+spawn telnet $HOST $PORT
+expect {
+    "Escape character is '^]'." {send "act-user::$USER:123::$PASSWD;\n"}
+    timeout {send_user "\n Telnet to $HOST failed due to incorrect prompt\n"; exit 19}
+    }
+
+expect {
+    -re "M  123 COMPLD.*;" {send $CMD\n}
+    timeout {send_user "\n Telnet to $HOST failed due to incorrect login\n"; exit 20}
+    }
+expect {
+    -re "M  123 COMPLD.*;" {send "canc-user::$USER:123:;\n"}
+    timeout {send_user "\n Command $CMD failed \n"; exit 21}
+    }
+expect {
+    -re "M  123 COMPLD.*;" {send "\035\n"}
+    timeout {send_user "\nUser Logout failed\n"}
+    }
+expect {
+    "telnet>" {send "quit\n"}
+    timeout {send_user "\nCommand ^] failed\n"}
+    }
+send_user "\nCompleted execution of command on Switch\n"

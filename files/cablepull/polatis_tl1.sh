@@ -147,27 +147,9 @@ if [[ -z ${HOST} ]] | [[ -z ${PORT} ]] |[[ -z ${USER} ]] | [[ -z ${PASSWD} ]] | 
   usage
 fi
 
-#------------------------------------------------------------------------------
-# do the telnet
+expect ./cablepull/polatis.exp $HOST $PORT $USER $PASSWD $CMD
+if [[ $? != 0 ]]
+then
+    exit 1
+fi
 
-( echo "open ${HOST} ${PORT} "
-sleep 2
-echo "act-user::${USER}:123::${PASSWD};"
-sleep 1
-echo "${CMD}"
-sleep 1
-echo "canc-user::${USER}:123:;"
-sleep 1
-echo  close  
-sleep 2 ) | telnet | tee  tn.out
-#------------------------------------------------------------------------------
-# check the retun code
-grep ^M tn.out |while read M tt RCode
-do 
-   if  [[ $RCode !=  COMPLD ]]
-   then
-	   rm -f tn.out
-	   exit 1
-   fi
-done
-rm -f tn.out
