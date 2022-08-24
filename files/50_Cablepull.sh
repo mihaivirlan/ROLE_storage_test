@@ -22,6 +22,7 @@
 # update TDI 30.03.2020 supported ficon switches added
 # big redesign TDI 04.06.2020 to run script locally for more bullet-proof execution
 # update TDI 08.02.2021 directory for logfiles now in $(pwd)/log instead of hardcoded /root/log
+# update TDI 25.03.2022 for new SAN switches
 
 
 # Load testlib
@@ -31,7 +32,7 @@ source ${TESTLIBDIR}/lib/common/results.sh || exit 1
 source ${TESTLIBDIR}/lib/common/remote.sh || exit 1
 source ${TESTLIBDIR}/lib/common/environment.sh || exit 1
 source ${TESTLIBDIR}/lib/toybox/common/libconcurrent.sh || exit 1
-source ${TESTLIBDIR}/functions.sh || exit 1 
+source ${TESTLIBDIR}/functions.sh || exit 1
 [[ -r ${TESTLIBDIR}/DASD.conf ]] && source ${TESTLIBDIR}/DASD.conf
 CONCURRENT_SSH_OPTIONS="${CONCURRENT_SSH_OPTIONS} -i /root/.ssh/id_rsa.autotest -q"
 
@@ -96,8 +97,17 @@ opt=$1
     esac
 shift
 done
-
-
+#call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+if [[ -n $DASDs ]]; then
+  for DASD in $DASDs
+    do
+      echo "checkDASDpath $DASD"
+      checkDASDpath $DASD
+      if [[ $? -eq 1 ]]; then
+        assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+      fi
+    done
+fi
 start_section 0 "Starting Switch Port Toggle / cable pull scenario"
     echo ""
     echo "Script settings:"
@@ -119,25 +129,14 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
 
     switch=`echo ${SWITCH}|awk '{print tolower($0)}'`
     case $switch in
-        fcsw32_ficon|fcsw42_fcp|fcsw39_ficon|fcsw49_fcp|fcsw51_fcp_er) switch_type="brocade";;
+        fcsw32_ficon|fcsw42_fcp|fcsw39_ficon|fcsw41_ficon_er|fcsw49_fcp|fcsw51_fcp_er) switch_type="brocade";;
         10.30.222.13[6,7,8,9])                                         switch_type="polatis";;
         *)                           echo "Unsupported switch!"
                                      echo "Supperted switches are:"
-                                     echo "fcsw32_ficon, fcsw42_fcp, fcsw39_ficon, fcsw49_fcp,"
+                                     echo "fcsw32_ficon, fcsw42_fcp, fcsw39_ficon, fcsw49_fcp,fcsw41_ficon_er,fcsw51_fcp_er"
                                      echo "polatis (10.30.222.137, 10.30.222.136, 10.30.222.138, 10.30.222.139)"
                                      exit 1;;
     esac
-    #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
-	if [[ -n $DASDs ]]; then
-	    for DASD in $DASDs
-			do
-			    echo "checkDASDpath $DASD"
-			    checkDASDpath $DASD
-			    if [[ $? -eq 1 ]]; then
-				    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
-			    fi
-			done
-	fi
 
     # computing maximum expected runtime, which is required as value
     # for concurrent:createLock expiration time (in seconds), just in
@@ -182,7 +181,17 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     exit 1
                 fi
             done
-
+            #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+            if [[ -n $DASDs ]]; then
+              for DASD in $DASDs
+                do
+                  echo "checkDASDpath $DASD"
+                  checkDASDpath $DASD
+                  if [[ $? -eq 1 ]]; then
+                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                  fi
+                done
+            fi
             Z=0
             while [ $Z -lt $CYCLES ]; do
                 Z=$[Z+1]
@@ -227,14 +236,14 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     sleep $ton
                     # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
                     if [[ -n $DASDs ]]; then
-                        for DASD in $DASDs
-                            do
-                                echo "checkDASDpath $DASD"
-                                checkDASDpath $DASD
-                                if [[ $? -eq 1 ]]; then
-                                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
-                                fi
-                            done
+                      for DASD in $DASDs
+                        do
+                          echo "checkDASDpath $DASD"
+                          checkDASDpath $DASD
+                          if [[ $? -eq 1 ]]; then
+                            assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                          fi
+                        done
                     fi
                 done
                 echo ""
@@ -254,7 +263,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
         # computing maximum expected runtime, which is required as value
         # for concurrent:createLock expiration time (in seconds), just in
         # case something breaks and the script does not release the lock
-        # for short times we need more time for of set 
+        # for short times we need more time for of set
         if  [[ $TIME_OFF -eq random || $TIME_ON -eq random ]]; then
             etime=$(( $(echo $PORTS |awk -F "," '{print NF}')*$(( $(($TIME_OFF>0?$TIME_OFF:120)) + $(($TIME_ON>0?$TIME_ON:120)) +20 ))*$CYCLES ))
         else
@@ -294,6 +303,17 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
             ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch::${PORTS//,/&}:123:;" > ${WDIR}/connections/portStates_${PORTS//,/_}_${SWITCH}_${DATE}.out
             ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch::${PORTS//,/&}:123:;" |grep "\"" > ${PORTSTAT}
 
+            #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+            if [[ -n $DASDs ]]; then
+              for DASD in $DASDs
+                do
+                  echo "checkDASDpath $DASD"
+                  checkDASDpath $DASD
+                  if [[ $? -eq 1 ]]; then
+                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                  fi
+                done
+            fi
             # now do the cable pulls
             PORTS=$(echo $PORTS|tr ',' ' ')  # removing the delimiting commas
             Z=0
@@ -351,14 +371,14 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     sleep $ton
                     # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
                     if [[ -n $DASDs ]]; then
-                        for DASD in $DASDs
-                            do
-                                echo "checkDASDpath $DASD"
-                                checkDASDpath $DASD
-                                if [[ $? -eq 1 ]]; then
-                                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
-                                fi
-                            done
+                      for DASD in $DASDs
+                        do
+                          echo "checkDASDpath $DASD"
+                          checkDASDpath $DASD
+                          if [[ $? -eq 1 ]]; then
+                            assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                          fi
+                        done
                     fi
                 done
                 echo ""
