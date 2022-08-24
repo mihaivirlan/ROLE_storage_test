@@ -97,8 +97,17 @@ opt=$1
     esac
 shift
 done
-
-
+#call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+if [[ -n $DASDs ]]; then
+  for DASD in $DASDs
+    do
+      echo "checkDASDpath $DASD"
+      checkDASDpath $DASD
+      if [[ $? -eq 1 ]]; then
+        assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+      fi
+    done
+fi
 start_section 0 "Starting Switch Port Toggle / cable pull scenario"
     echo ""
     echo "Script settings:"
@@ -128,17 +137,6 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                                      echo "polatis (10.30.222.137, 10.30.222.136, 10.30.222.138, 10.30.222.139)"
                                      exit 1;;
     esac
-    #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
-	if [[ -n $DASDs ]]; then
-	    for DASD in $DASDs
-			do
-			    echo "checkDASDpath $DASD"
-			    checkDASDpath $DASD
-			    if [[ $? -eq 1 ]]; then
-				    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
-			    fi
-			done
-	fi
 
     # computing maximum expected runtime, which is required as value
     # for concurrent:createLock expiration time (in seconds), just in
@@ -183,7 +181,17 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     exit 1
                 fi
             done
-
+            #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+            if [[ -n $DASDs ]]; then
+              for DASD in $DASDs
+                do
+                  echo "checkDASDpath $DASD"
+                  checkDASDpath $DASD
+                  if [[ $? -eq 1 ]]; then
+                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                  fi
+                done
+            fi
             Z=0
             while [ $Z -lt $CYCLES ]; do
                 Z=$[Z+1]
@@ -227,16 +235,16 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     echo "sleeping for $ton sec..."
                     sleep $ton
                     # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
-                    # if [[ -n $DASDs ]]; then
-                    #     for DASD in $DASDs
-                    #         do
-                    #             echo "checkDASDpath $DASD"
-                    #             checkDASDpath $DASD
-                    #             if [[ $? -eq 1 ]]; then
-                    #                 assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
-                    #             fi
-                    #         done
-                    # fi
+                    if [[ -n $DASDs ]]; then
+                      for DASD in $DASDs
+                        do
+                          echo "checkDASDpath $DASD"
+                          checkDASDpath $DASD
+                          if [[ $? -eq 1 ]]; then
+                            assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                          fi
+                        done
+                    fi
                 done
                 echo ""
             done
@@ -295,6 +303,17 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
             ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch::${PORTS//,/&}:123:;" > ${WDIR}/connections/portStates_${PORTS//,/_}_${SWITCH}_${DATE}.out
             ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch::${PORTS//,/&}:123:;" |grep "\"" > ${PORTSTAT}
 
+            #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+            if [[ -n $DASDs ]]; then
+              for DASD in $DASDs
+                do
+                  echo "checkDASDpath $DASD"
+                  checkDASDpath $DASD
+                  if [[ $? -eq 1 ]]; then
+                    assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                  fi
+                done
+            fi
             # now do the cable pulls
             PORTS=$(echo $PORTS|tr ',' ' ')  # removing the delimiting commas
             Z=0
@@ -351,16 +370,16 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     echo "sleeping for $ton sec..."
                     sleep $ton
                     # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
-                    # if [[ -n $DASDs ]]; then
-                    #     for DASD in $DASDs
-                    #         do
-                    #             echo "checkDASDpath $DASD"
-                    #             checkDASDpath $DASD
-                    #             if [[ $? -eq 1 ]]; then
-                    #                 assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
-                    #             fi
-                    #         done
-                    # fi
+                    if [[ -n $DASDs ]]; then
+                      for DASD in $DASDs
+                        do
+                          echo "checkDASDpath $DASD"
+                          checkDASDpath $DASD
+                          if [[ $? -eq 1 ]]; then
+                            assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+                          fi
+                        done
+                    fi
                 done
                 echo ""
             done
