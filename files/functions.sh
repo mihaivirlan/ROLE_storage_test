@@ -406,8 +406,7 @@ function deletePartitions {
 
 function wipeDisk () {
 
-    wipe=$1
-    cat ${DEVICE_LIST} |
+      cat ${DEVICE_LIST} |
       while read LINE; do
       		DEVICE=$(echo ${LINE} | awk '{print $1}')
       		dd if=/dev/zero of=${DEVICE} bs=1M count=1
