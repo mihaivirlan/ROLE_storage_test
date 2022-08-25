@@ -404,6 +404,18 @@ function deletePartitions {
 
 }
 
+function wipeDisk () {
+    
+    wipe=$1
+    if [[ $wipe == --scsi-wipe-disks ]] ; then
+            cat ${DEVICE_LIST} |
+            while read LINE; do
+                DEVICE=$(echo ${LINE} | awk '{print $1}')
+                dd if=/dev/zero of=${DEVICE} bs=1M count=1
+            done
+    fi
+
+}
 function display_usage {
 
     echo "Incorrect usage of the script."

@@ -37,6 +37,15 @@ start_section 0 "Removing LVM setup (logical volumes, volume groups and physical
 
     start_section 1 "Deleting LVM partition on multipath devices"
         createDeviceList
+        case $1 in
+		  --scsi-wipe-disks)
+		    echo "Wiping scsi disks"
+		    wipeDisk $1
+            ;;
+		  *)
+            ;;
+         esac
+        wipeDisk $1				  					
         deletePartitions    
         multipath -F 
     end_section 1
