@@ -405,15 +405,15 @@ function deletePartitions {
 }
 
 function wipeDisk () {
-    
+
     wipe=$1
     cat ${DEVICE_LIST} |
       while read LINE; do
-        DEVICE=$(echo ${LINE} | awk '{print $1}')
-        dd if=/dev/zero of=${DEVICE} bs=1M count=1
+      	DEVICE=$(echo ${LINE} | awk '{print $1}')
+      	dd if=/dev/zero of=${DEVICE} bs=1M count=1
 	if [ $? -ne 0 ]; then
-	   assert_warn 0 0 "An error occurred while wiping disks."
- 	   exit 1
+		assert_warn 0 0 "An error occurred while wiping disks."
+ 		exit 1
 	fi
       done
 }
