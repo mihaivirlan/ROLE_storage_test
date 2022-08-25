@@ -44,8 +44,7 @@ start_section 0 "Removing LVM setup (logical volumes, volume groups and physical
             ;;
 		  *)
             ;;
-         esac
-        wipeDisk $1				  					
+         esac			  					
         deletePartitions    
         multipath -F 
     end_section 1
