@@ -55,7 +55,6 @@ function checkZfcpStatus {
 }
 
 function checkDASDpath {
-
 	myDASD=$1
 	lsdasd -l ${myDASD} |grep paths_in_use |cut -f 2 -d: |while read CHPIDs
 	do
@@ -64,8 +63,20 @@ function checkDASDpath {
 			assert_warn 1 0 "for ${myDASD} is only $CHPIDs channel paths online!"
 			exit 1
 		fi        
-	done
-    
+	done    
+}
+
+function checkDASDpath_status () {
+    if [[ -n $DASDs ]]; then
+      for DASD in $DASDs
+      do
+          echo "checkDASDpath $DASD"
+          checkDASDpath $DASD
+          if [[ $? -eq 1 ]]; then
+            assert_fail 1 0 "Not all CHPIDs for \"$DASD\" are online! Please, firstly make sure that all CHPIDs are online!"
+          fi
+      done
+    fi
 }
 
 function createDeviceList {
