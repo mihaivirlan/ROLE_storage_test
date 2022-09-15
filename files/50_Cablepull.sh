@@ -126,7 +126,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                                      echo "polatis (10.30.222.137, 10.30.222.136, 10.30.222.138, 10.30.222.139)"
                                      exit 1;;
     esac
-    #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+    #call checkDASDpath_status function to check if one of chpids is crashed or not before start of execution DASD_cablepull_fio cycles
     checkDASDpath_status
 
     # computing maximum expected runtime, which is required as value
@@ -172,7 +172,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     exit 1
                 fi
             done
-            #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+            #call checkDASDpath_status function to check if one of chpids is crashed or not before start of execution DASD_cablepull_fio cycles
             checkDASDpath_status
 
             Z=0
@@ -217,7 +217,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     fi
                     echo "sleeping for $ton sec..."
                     sleep $ton
-                    # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
+                    # call checkDASDpath_status function to check if one of chpids crashed or not during execution - check it after each cycle!
                     checkDASDpath_status
 
                 done
@@ -278,7 +278,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
             ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch::${PORTS//,/&}:123:;" > ${WDIR}/connections/portStates_${PORTS//,/_}_${SWITCH}_${DATE}.out
             ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "rtrv-patch::${PORTS//,/&}:123:;" |grep "\"" > ${PORTSTAT}
 
-            #call checkCHPIDS function to check if one of chpids is crashed or not before start of execution checkDASDpath
+            #call checkDASDpath_status function to check if one of chpids is crashed or not before start of execution DASD_cablepull_fio cycles
             checkDASDpath_status
 
             # now do the cable pulls
@@ -336,7 +336,7 @@ start_section 0 "Starting Switch Port Toggle / cable pull scenario"
                     ${WDIR}/polatis_tl1.sh -h ${IP} -u ${USERID} -pw ${PASSWD} -c "RTRV-PATCH::${IPORT}:123:;" |grep '\"'
                     echo "sleeping for $ton sec..."
                     sleep $ton
-                    # call checkDASDpath function to check if one of chpids crashed or not during execution - check it after each cycle!
+                    # call checkDASDpath_status function to check if one of chpids crashed or not during execution - check it after each cycle!
                     checkDASDpath_status
 
                 done
